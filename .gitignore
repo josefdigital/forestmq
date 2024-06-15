@@ -4,6 +4,7 @@ cmake-build-debug
 */cmake-build-debug
 */*/.venv
 */*/.idea
+docs
 
 # Prerequisites
 *.d

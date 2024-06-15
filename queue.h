@@ -29,17 +29,18 @@ typedef struct FMQ_LList        FMQ_LList;
 typedef struct FMQ_LListElem    FMQ_LListElem;
 typedef struct FMQ_Queue        FMQ_Queue;
 
-void FMQ_list_init(FMQ_LList *list, void (*destroy)(void *data));
+FMQ_LList *FMQ_LList_new(void (*destroy)(void *data));
 void FMQ_list_destroy(FMQ_LList *list);
 void FMQ_list_ins_next(FMQ_LList *list, FMQ_LListElem *elem, const void *data);
 void FMQ_list_rem_next(FMQ_LList *list, FMQ_LListElem *elem, void **data);
-void FMQ_list_size(const FMQ_LList *list);
-void FMQ_list_head(const FMQ_LList *list);
-FMQ_LListElem *FMQ_list_tail(const FMQ_LList *list);
-FMQ_LListElem *FMQ_list_next(const FMQ_LListElem *elem);
-int FMQ_list_is_head(const FMQ_LListElem *elem);
-int FMQ_list_is_tail(const FMQ_LListElem *elem);
-void *FMQ_list_data(const FMQ_LListElem *elem);
+
+#define FMQ_GET_LIST_SIZE (list) ((list)->size)
+#define FMQ_GET_LIST_HEAD (list) ((list)->head)
+#define FMQ_GET_LIST_TAIL (list) ((list)->tail)
+#define FMQ_GET_IS_LIST_HEAD (list, elem) ((elem) == (list)->head ? 1 : 0)
+#define FMQ_IS_LIST_TAIL ((elem)->next == NULL ? 1 : 0)
+#define FMQ_GET_LIST_DATA(elem) ((elem)->data)
+#define FMQ_GET_LIST_NEXT(elem) ((elem)->next)
 
 struct FMQ_LListElem
 {

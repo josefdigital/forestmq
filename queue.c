@@ -21,7 +21,23 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-
+#include <stdio.h>
+#include <stdlib.h>
 #include "queue.h"
 
 
+
+FMQ_LList *FMQ_LList_new(void (*destroy)(void *data))
+{
+   FMQ_LList *l = malloc(sizeof(FMQ_LList));
+   if (l == NULL)
+   {
+      printf("Could not allocate memory for new List\n");
+      return NULL;
+   }
+   l->size = 0;
+   l->destroy = destroy;
+   l->head = NULL;
+   l->tail = NULL;
+   return l; // TODO free
+}
