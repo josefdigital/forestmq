@@ -1,4 +1,4 @@
-# Forest MQ 🌲🌲🌲
+# Forest MQ 🌲
 A C message queue for Unix
 
 ⚠️Production ready in v1.0.0
