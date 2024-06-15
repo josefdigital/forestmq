@@ -4,7 +4,7 @@ A C message queue for Unix
 ⚠️Production ready in v1.0.0
 
 ### Features
-- TCP
+- TCP ✅
 - ampq-v1.0 `TODO`
 - Multiple queues `TODO`
 - Message acknowledgement `TODO`
