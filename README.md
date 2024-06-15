@@ -1,5 +1,5 @@
 # Forest MQ 🌲
-A C message queue
+A C message queue for Unix
 
 ⚠️Production ready in v1.0.0
 
@@ -12,11 +12,15 @@ A C message queue
 - exchange types (e.g. fan) `TODO`
 - Logging `TODO`
 - Topics `TODO`
+- MacOS distribution with brew `TODO`
+- Linux distribution with snap `TODO`
 
 ### Quick Start
 
-
 ### Options
 
+### Support
 
+### Contributions
 
+### Contact
