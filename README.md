@@ -1,5 +1,4 @@
-# Forest MQ 🌲
-C message queue for Unix
+![ForestMQ](assets/fmq_logo.png?raw=true "ForestMQ")
 
 ⚠️ Production ready in v1.0.0
 
