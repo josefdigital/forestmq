@@ -24,69 +24,27 @@
 */
 #ifndef QUEUE_H
 #define QUEUE_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #define L_SUCCESS 0
 #define L_NO_ERROR 0
 #define L_ALOC_ERROR -1
 
-/********************************************//**
- * @brief To create a new linked list, create an instance of List.
- *
- * For example:
- * @code
- * List *list;
- * @endcode
- * @param data generic data type
- * @param next is the reference to the next node of the list
- ***********************************************/
-typedef struct L_List_ {
+typedef struct FMQ_LList            FMQ_LList;
+
+struct FMQ_LList
+{
     void *data;
-    struct L_List_ *next;
-} L_List;
+    struct FMQ_LList *next;
+};
 
+#define FMQ_LList_IS_EMPTY(l) (l == NULL)
+#define FMQ_LList_NEXT(l) (l->next)
+#define FMQ_LList_DATA(l) (l->data)
 
-/********************************************//**
- * @brief Checks if the list is empty. The macro wiL
- * return true if there are no nodes in the list or the
- * list has not yet been initiated.
- *
- * @param l
- * @return #define
- *
- ***********************************************/
-#define L_LIST_IS_EMPTY(l) (l == NULL)
-
-/********************************************//**
- * @brief Returns a pointer to the node in the list
- *
- * @param l
- * @return #define
- *
- ***********************************************/
-#define L_LIST_NEXT(l) (l->next)
-
-/********************************************//**
- * @brief Returns the current node's data
- *
- * @param l
- * @return #define
- *
- ***********************************************/
-#define L_LIST_DATA(l) (l->data)
-
-// Prototypes
-L_List *L_list_new(void *data);
-
-int L_list_insert(L_List *list, void *data);
-
-void *L_list_delete(L_List *list, void *data);
-
-int L_list_size(L_List *list);
-
-void L_list_destroy(L_List * list);
-
-L_List *L_list_tail(L_List *list);
+FMQ_LList *FMQ_LList_new(void *data);
+int FMQ_LList_insert(FMQ_LList *list, void *data);
+void *FMQ_LList_delete(FMQ_LList *list, void *data);
+int FMQ_LList_size(FMQ_LList *list);
+void FMQ_LList_destroy(FMQ_LList * list);
+FMQ_LList *FMQ_LList_tail(FMQ_LList *list);
 
 #endif //QUEUE_H
