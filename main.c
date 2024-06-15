@@ -3,7 +3,7 @@
 
 #define PORT 8005
 
-int callback_consumer(const struct _u_request * request,
+int callback_consumer(const struct _u_request *request,
     struct _u_response *response, void *user_data)
 {
     ulfius_set_string_body_response(response, 200, "Consumer...");

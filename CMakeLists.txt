@@ -3,7 +3,19 @@ project(forest_mq C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_executable(forest_mq main.c)
+add_executable(forest_mq main.c
+        consumer.c
+        consumer.h
+        provider.c
+        provider.h
+        tcp.c
+        tcp.h
+        queue.c
+        queue.h
+        exchange.c
+        exchange.h
+        config.c
+        config.h)
 
 find_package(PkgConfig REQUIRED)
 
