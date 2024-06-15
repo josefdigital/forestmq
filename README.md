@@ -1,4 +1,5 @@
 ![ForestMQ](assets/fmq_logo.png?raw=true "ForestMQ")
+C Message Queue 🌲
 
 ⚠️ Production ready in v1.0.0
 
