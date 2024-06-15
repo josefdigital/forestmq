@@ -14,6 +14,7 @@ add_executable(tests main.c
 target_include_directories(
         tests
         PRIVATE
+        /opt/homebrew/Cellar/check/0.15.2/include
         /opt/homebrew/Cellar/cmocka/1.1.7/include
 )
 target_link_libraries(

@@ -3,6 +3,7 @@
 install_ulfius_mac:
 	brew install gnutls
 	brew install ulfius
+	brew install check
 	brew install cmocka
 	brew install doxygen
 
