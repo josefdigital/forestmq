@@ -15,7 +15,9 @@ add_executable(forest_mq main.c
         exchange.c
         exchange.h
         config.c
-        config.h)
+        config.h
+        forest_mq.c
+        forest_mq.h)
 
 find_package(PkgConfig REQUIRED)
 
