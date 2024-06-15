@@ -1,7 +1,8 @@
+/* @file lists.h */
 /**
 * MIT License
 *
-* Copyright (c) 2024 Joe Gasewicz
+* Copyright (c) 2023 Joe Gasewicz
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -21,45 +22,71 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-
 #ifndef QUEUE_H
 #define QUEUE_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#define L_SUCCESS 0
+#define L_NO_ERROR 0
+#define L_ALOC_ERROR -1
 
-typedef struct FMQ_LList        FMQ_LList;
-typedef struct FMQ_LListElem    FMQ_LListElem;
-typedef struct FMQ_Queue        FMQ_Queue;
+/********************************************//**
+ * @brief To create a new linked list, create an instance of List.
+ *
+ * For example:
+ * @code
+ * List *list;
+ * @endcode
+ * @param data generic data type
+ * @param next is the reference to the next node of the list
+ ***********************************************/
+typedef struct L_List_ {
+    void *data;
+    struct L_List_ *next;
+} L_List;
 
-FMQ_LList *FMQ_LList_new(void (*destroy)(void *data));
-void FMQ_list_destroy(FMQ_LList *list);
-void FMQ_list_ins_next(FMQ_LList *list, FMQ_LListElem *elem, const void *data);
-void FMQ_list_rem_next(FMQ_LList *list, FMQ_LListElem *elem, void **data);
 
-#define FMQ_GET_LIST_SIZE (list) ((list)->size)
-#define FMQ_GET_LIST_HEAD (list) ((list)->head)
-#define FMQ_GET_LIST_TAIL (list) ((list)->tail)
-#define FMQ_GET_IS_LIST_HEAD (list, elem) ((elem) == (list)->head ? 1 : 0)
-#define FMQ_IS_LIST_TAIL ((elem)->next == NULL ? 1 : 0)
-#define FMQ_GET_LIST_DATA(elem) ((elem)->data)
-#define FMQ_GET_LIST_NEXT(elem) ((elem)->next)
+/********************************************//**
+ * @brief Checks if the list is empty. The macro wiL
+ * return true if there are no nodes in the list or the
+ * list has not yet been initiated.
+ *
+ * @param l
+ * @return #define
+ *
+ ***********************************************/
+#define L_LIST_IS_EMPTY(l) (l == NULL)
 
-struct FMQ_LListElem
-{
-    void                        *data;
-    struct FMQ_LListE           *next;
-};
+/********************************************//**
+ * @brief Returns a pointer to the node in the list
+ *
+ * @param l
+ * @return #define
+ *
+ ***********************************************/
+#define L_LIST_NEXT(l) (l->next)
 
-struct FMQ_LList
-{
-    int                         size;
-    int                         (*match)(const void *key1, const void *key2);
-    void                        (*destroy)(void *data);
-    FMQ_LListElem               *head;
-    FMQ_LListElem               *tail;
-};
+/********************************************//**
+ * @brief Returns the current node's data
+ *
+ * @param l
+ * @return #define
+ *
+ ***********************************************/
+#define L_LIST_DATA(l) (l->data)
 
-struct FMQ_Queue
-{
+// Prototypes
+L_List *L_list_new(void *data);
 
-};
+int L_list_insert(L_List *list, void *data);
+
+void *L_list_delete(L_List *list, void *data);
+
+int L_list_size(L_List *list);
+
+void L_list_destroy(L_List * list);
+
+L_List *L_list_tail(L_List *list);
 
 #endif //QUEUE_H
