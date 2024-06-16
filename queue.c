@@ -30,7 +30,7 @@
 
 FMQ_QNode *FMQ_QNode_new(void *data)
 {
-    FMQ_QNode *n = malloc(sizeof(FMQ_QNode));
+    FMQ_QNode *n = (FMQ_QNode*)malloc(sizeof(FMQ_QNode));
     if (n == NULL)
     {
         printf("Couldn't allocate memory for new node\n");
@@ -41,16 +41,47 @@ FMQ_QNode *FMQ_QNode_new(void *data)
     return n; // TODO free
 }
 
-FMQ_Queue *FMQ_Queue_new(FMQ_QNode *node)
+FMQ_Queue *FMQ_Queue_new(void)
 {
-    FMQ_Queue *q = malloc(sizeof(FMQ_Queue));
+    FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
     if (q == NULL)
     {
         printf("Couldn't allocate memory for new queue\n");
         exit(EXIT_FAILURE);
     }
-    q->head = node;
-    q->tail = node;
-    q->size = 1;
+    q->head = NULL;
+    q->tail = NULL;
+    q->size = 0;
     return q; // TODO free
 }
+
+void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
+{
+    FMQ_QNode *tmpHeadNode = queue->head;
+    FMQ_QNode *node = FMQ_QNode_new(data);
+    if (queue->tail == NULL)
+    {
+        queue->head = node;
+        queue->tail = node;
+        return;
+    }
+
+    while (tmpHeadNode->next != NULL)
+    {
+        tmpHeadNode = tmpHeadNode->next;
+    }
+    tmpHeadNode->next = node;
+}
+
+FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
+{
+    if (queue->head == NULL)
+        return NULL;
+
+    FMQ_QNode *node = queue->head;
+    queue->head = queue->head->next;
+    // if front becomes null reset queue
+    if (queue->head == NULL)
+        queue->tail = NULL;
+    return node;
+};
