@@ -1,4 +1,4 @@
-/** @file queue.c */
+/** @file LList.c */
 /**
 * MIT License
 *
@@ -28,96 +28,60 @@
 #include "queue.h"
 
 
-FMQ_LList *FMQ_LList_new(void *data)
+FMQ_QNode *FMQ_QNode_new(void *data)
 {
-    FMQ_LList *l = malloc(sizeof(FMQ_LList));
-    l->data = data;
-    l->next = NULL;
-    return l;
+    FMQ_QNode *n = (FMQ_QNode*)malloc(sizeof(FMQ_QNode));
+    if (n == NULL)
+    {
+        printf("Couldn't allocate memory for new node\n");
+        exit(EXIT_FAILURE);
+    }
+    n->data = data;
+    n->next = NULL;
+    return n; // TODO free
 }
 
-int FMQ_LList_insert(FMQ_LList *const list, void *data)
+FMQ_Queue *FMQ_Queue_new(void)
 {
-    FMQ_LList *tempList = list;
-    while(tempList->next != NULL)
+    FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
+    if (q == NULL)
     {
-        tempList = tempList->next;
+        printf("Couldn't allocate memory for new queue\n");
+        exit(EXIT_FAILURE);
     }
-    tempList->next = malloc(sizeof(FMQ_LList));
-    if (tempList->next == NULL)
-    {
-        printf("Error: unable to allocate memory");
-        return L_ALOC_ERROR;
-    }
-    tempList->next->data = data;
-    tempList->next->next = NULL;
-    return L_NO_ERROR;
+    q->head = NULL;
+    q->tail = NULL;
+    q->size = 0;
+    return q; // TODO free
 }
 
-void *FMQ_LList_delete(FMQ_LList *list, void *data)
+void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
 {
-    FMQ_LList *tempPtr = list;
-    FMQ_LList *prevPtr;
-    // check if the current head of the list contains the same ref to data
-    // & compare the address from void *data
-    if (list->data == data)
+    FMQ_QNode *tmpHeadNode = queue->head;
+    FMQ_QNode *node = FMQ_QNode_new(data);
+    if (queue->tail == NULL)
     {
-        tempPtr = list; // temporarily store node being deleted
-        list = list->next;
-        free(tempPtr->data);
-        free(tempPtr);
-    }
-    else
-    {
-        while(tempPtr->data != data)
-        {
-            prevPtr = tempPtr;
-            tempPtr = list->next;
-        }
-        prevPtr->next = tempPtr->next;
-        free(tempPtr->data);
-        free(tempPtr);
-    }
-    return data;
-}
-
-int FMQ_LList_size(FMQ_LList *list)
-{
-    int i = 0;
-    FMQ_LList *currPtr = list;
-    while (currPtr->next != NULL)
-    {
-        currPtr = currPtr->next;
-        i++;
-    }
-    return i;
-}
-
-void FMQ_LList_destroy(FMQ_LList * list)
-{
-    FMQ_LList *tempPtr;
-    if (list == NULL)
+        queue->head = node;
+        queue->tail = node;
         return;
-    while(tempPtr->next != NULL)
-    {
-        if (list->next == NULL)
-        {
-            free(list);
-            break;
-        }
-        tempPtr = list;
-        list = list->next;
-        if (tempPtr)
-            free(tempPtr);
     }
+
+    while (tmpHeadNode->next != NULL)
+    {
+        tmpHeadNode = tmpHeadNode->next;
+    }
+    tmpHeadNode->next = node;
 }
 
-FMQ_LList *FMQ_LList_tail(FMQ_LList *list)
+FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
 {
-    FMQ_LList *tempPtr = list;
-    if (tempPtr->next == NULL)
-        return tempPtr;
-    while (tempPtr->next != NULL)
-        tempPtr = tempPtr->next;
-    return tempPtr;
-}
+    if (queue->head == NULL)
+        return NULL;
+
+    FMQ_QNode *node = queue->head;
+    queue->head = queue->head->next;
+    // if front becomes null reset queue
+    if (queue->head == NULL)
+        queue->tail = NULL;
+    return node;
+};

@@ -24,27 +24,26 @@
 */
 #ifndef QUEUE_H
 #define QUEUE_H
-#define L_SUCCESS 0
-#define L_NO_ERROR 0
-#define L_ALOC_ERROR -1
 
-typedef struct FMQ_LList            FMQ_LList;
+typedef struct FMQ_QNode    FMQ_QNode;
+typedef struct FMQ_Queue    FMQ_Queue;
 
-struct FMQ_LList
+struct FMQ_QNode
 {
-    void *data;
-    struct FMQ_LList *next;
+    void                    *data;
+    FMQ_QNode               *next;
 };
 
-#define FMQ_LList_IS_EMPTY(l) (l == NULL)
-#define FMQ_LList_NEXT(l) (l->next)
-#define FMQ_LList_DATA(l) (l->data)
+struct FMQ_Queue
+{
+    int                     size;
+    FMQ_QNode               *head;
+    FMQ_QNode               *tail;
+};
 
-FMQ_LList *FMQ_LList_new(void *data);
-int FMQ_LList_insert(FMQ_LList *list, void *data);
-void *FMQ_LList_delete(FMQ_LList *list, void *data);
-int FMQ_LList_size(FMQ_LList *list);
-void FMQ_LList_destroy(FMQ_LList * list);
-FMQ_LList *FMQ_LList_tail(FMQ_LList *list);
+FMQ_QNode *FMQ_QNode_new(void *data);
+FMQ_Queue *FMQ_Queue_new(void);
+void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data);
+FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue);
 
 #endif //QUEUE_H

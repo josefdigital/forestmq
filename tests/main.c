@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <setjmp.h>
 #include <cmocka.h>
 #include <stdlib.h>
@@ -8,195 +9,189 @@
 #include "../queue.h"
 
 
-static void null_test_success(void **state)
+static void TEST_null_test_success(void **state)
 {
     (void) state;
 }
 
-static void test_FMQ_LList_new1(void **state)
+static void TEST_FMQ_QNode_new(void **state)
 {
-    char *expected = "Joe";
-    typedef struct data_t {
-        char *name;
-        int age;
+    (void) state;
+    char *name = "Joe";
+    FMQ_QNode *q = FMQ_QNode_new(name);
+    assert_string_equal(q->data, "Joe");
+    free(q);
+}
+
+static void TEST_FMQ_Queue_new(void **state)
+{
+    (void) state;
+    FMQ_Queue *q = FMQ_Queue_new();
+    assert_null(q->head);
+    assert_null(q->tail);
+    assert_int_equal(q->size, 0);
+    free(q);
+}
+
+
+static void TEST_FMQ_Queue_enqueue(void **state)
+{
+    typedef struct Data {
+       void *value;
     } Data;
+    FMQ_Queue *q = FMQ_Queue_new();
+    char *name1 = "Joe";
+    char *name2 = "Terry";
+    char *name3 = "Tarquin";
+    char *name4 = "Nigel";
+    char *name5 = "Frank";
 
-    Data *data;
+    Data *d1 = malloc(sizeof(Data));
+    d1->value = calloc(4, sizeof(char));
+    strcat(d1->value, name1);
+    FMQ_QNode *n1 = FMQ_QNode_new(d1);
 
-    data = malloc(sizeof(Data));
-    data->name = malloc(sizeof(expected));
-    strcat(data->name, expected);
-    data->age = 47;
+    Data *d2 = malloc(sizeof(Data));
+    d2->value = calloc(6, sizeof(char));
+    strcat(d2->value, name2);
+    FMQ_QNode *n2 = FMQ_QNode_new(d2);
 
-    FMQ_LList *list = FMQ_LList_new(data);
-    /* unit test code */
-    Data *resultData = list->data;
-    assert_string_equal(expected, resultData->name);
-    assert_int_equal(47, resultData->age);
-    /* clean up */
-    free(data);
-    free(list);
+    Data *d3 = malloc(sizeof(Data));
+    d3->value = calloc(6, sizeof(char));
+    strcat(d3->value, name3);
+    FMQ_QNode *n3 = FMQ_QNode_new(d3);
+
+    Data *d4 = malloc(sizeof(Data));
+    d4->value = calloc(6, sizeof(char));
+    strcat(d4->value, name4);
+    FMQ_QNode *n4 = FMQ_QNode_new(d4);
+
+    Data *d5 = malloc(sizeof(Data));
+    d5->value = calloc(6, sizeof(char));
+    strcat(d5->value, name5);
+    FMQ_QNode *n5 = FMQ_QNode_new(d5);
+
+    FMQ_Queue_enqueue(q, n1);
+    FMQ_Queue_enqueue(q, n2);
+    FMQ_Queue_enqueue(q, n3);
+    FMQ_Queue_enqueue(q, n4);
+    FMQ_Queue_enqueue(q, n5);
+
+    const Data* resultData = q->head->data;
+    const Data* resultData2 = q->head->next->data;
+    const Data* resultData3 = q->head->next->next->data;
+    const Data* resultData4 = q->head->next->next->next->data;
+    const Data* resultData5 = q->head->next->next->next->next->data;
+
+    assert_string_equal(resultData->value, d1);
+    assert_string_equal(resultData2->value, d2);
+    assert_string_equal(resultData3->value, d3);
+    assert_string_equal(resultData4->value, d4);
+    assert_string_equal(resultData5->value, d5);
+
+    free(d1->value);
+    free(d1);
+    free(d2->value);
+    free(d2);
+    free(d3->value);
+    free(d3);
+    free(d4->value);
+    free(d4);
+    free(d5->value);
+    free(d5);
+    free(n1);
+    free(n2);
+    free(n3);
+    free(n4);
+    free(n5);
+    free(q);
 }
 
-static void test_FMQ_LList_insert(void **state)
+static void TEST_FMQ_Queue_dequeue(void **state)
 {
-    // Setup
-    typedef struct data_t {
-        char *name;
+    typedef struct Data {
+        void *value;
     } Data;
+    FMQ_Queue *q = FMQ_Queue_new();
+    char *name1 = "Joe";
+    char *name2 = "Terry";
+    char *name3 = "Tarquin";
+    char *name4 = "Nigel";
+    char *name5 = "Frank";
 
-    Data *data = malloc(sizeof(Data));
-    Data *data3 = malloc(sizeof(Data)); // for negative test
-    data->name = calloc(4, sizeof(char));
-    strcpy(data->name, "Joe");
-    FMQ_LList *list = FMQ_LList_new(data);
+    Data *d1 = malloc(sizeof(Data));
+    d1->value = calloc(4, sizeof(char));
+    strcat(d1->value, name1);
+    FMQ_QNode *n1 = FMQ_QNode_new(d1);
 
-    // Setup for FMQ_LList_insert
-    Data *data2 = malloc(sizeof(Data));
-    data2->name = calloc(4, sizeof(char));
-    strcpy(data2->name, "Ted");
-    int result1 = FMQ_LList_insert(list, data2);
+    Data *d2 = malloc(sizeof(Data));
+    d2->value = calloc(6, sizeof(char));
+    strcat(d2->value, name2);
+    FMQ_QNode *n2 = FMQ_QNode_new(d2);
 
-    // Test
-    assert_int_equal(result1, L_NO_ERROR);
-    assert_ptr_equal(list->data, data);
-    assert_string_equal(((Data*)list->data)->name, "Joe");
-    assert_ptr_equal(list->next->data, data2);
-    assert_ptr_not_equal(list->next->data, data3);
-    assert_string_equal(((Data*)list->next->data)->name, "Ted");
-}
+    Data *d3 = malloc(sizeof(Data));
+    d3->value = calloc(8, sizeof(char));
+    strcat(d3->value, name3);
+    FMQ_QNode *n3 = FMQ_QNode_new(d3);
 
-static void test_FMQ_LList_delete(void **state)
-{
-    // Setup
-    typedef struct data_t {
-        char *name;
-    } Data;
+    Data *d4 = malloc(sizeof(Data));
+    d4->value = calloc(6, sizeof(char));
+    strcat(d4->value, name4);
+    FMQ_QNode *n4 = FMQ_QNode_new(d4);
 
-    Data *data = malloc(sizeof(Data));
-    data->name = calloc(4, sizeof(char));
-    strcat(data->name, "Joe");
-    FMQ_LList *list = FMQ_LList_new(data);
+    Data *d5 = malloc(sizeof(Data));
+    d5->value = calloc(6, sizeof(char));
+    strcat(d5->value, name5);
+    FMQ_QNode *n5 = FMQ_QNode_new(d5);
 
-    // Insert another item
-    Data *data2 = malloc(sizeof(Data));
-    data2->name = calloc(4, sizeof(char));
-    strcpy(data2->name, "Ted");
-    FMQ_LList_insert(list, data2);
+    FMQ_Queue_enqueue(q, n1);
+    FMQ_Queue_enqueue(q, n2);
+    FMQ_Queue_enqueue(q, n3);
+    FMQ_Queue_enqueue(q, n4);
+    FMQ_Queue_enqueue(q, n5);
 
-    // Insert another item
-    Data *data3 = malloc(sizeof(Data));
-    data3->name = calloc(4, sizeof(char));
-    strcpy(data3->name, "Pat");
-    FMQ_LList_insert(list, data3);
+    FMQ_Queue_dequeue(q);
+    Data* resultData = q->head->data;
+    assert_string_equal(resultData->value, d2);
 
-    // Delete the #2nd item
-    void *result = FMQ_LList_delete(list, data2);
+    FMQ_Queue_dequeue(q);
+    resultData = q->head->data;
+    assert_string_equal(resultData->value, d3);
 
-    // Test
-    assert_ptr_equal(result, data2);
-    assert_ptr_equal(list->data, data);
-    assert_ptr_equal(list->next->data, data3);
-    assert_ptr_equal(list->next->next, NULL);
-}
+    FMQ_Queue_dequeue(q);
+    resultData = q->head->data;
+    assert_string_equal(resultData->value, d4);
 
-static void test_FMQ_LList_IS_EMPTY(void **state)
-{
-    int d = 1;
-    FMQ_LList *l = FMQ_LList_new(&d);
-    int result = FMQ_LList_IS_EMPTY(l);
-    assert_int_equal(result, 0);
-    result = FMQ_LList_IS_EMPTY(NULL);
-    assert_int_equal(result, 1);
-}
+    FMQ_Queue_dequeue(q);
+    resultData = q->head->data;
+    assert_string_equal(resultData->value, d5);
 
-static void test_FMQ_LList_size(void **state)
-{
-    int d1 = 1;
-    int d2 = 1;
-    int d3 = 1;
-    int d4 = 1;
-    int result;
-    FMQ_LList *l = FMQ_LList_new(&d1);
-    FMQ_LList_insert(l, &d2);
-    FMQ_LList_insert(l, &d3);
-    FMQ_LList_insert(l, &d4);
-    result = FMQ_LList_size(l);
-    assert_int_equal(result, 3);
-}
-
-static void test_FMQ_LList_NEXT(void **state)
-{
-    int d1 = 1;
-    int d2 = 2;
-    int d3 = 3;
-    int d4 = 4;
-    FMQ_LList *l = FMQ_LList_new(&d1);
-    FMQ_LList_insert(l, &d2);
-    FMQ_LList_insert(l, &d3);
-    FMQ_LList_insert(l, &d4);
-    assert_ptr_equal(l->data, &d1);
-    FMQ_LList *l2 = FMQ_LList_NEXT(l);
-    assert_ptr_equal(l2->data, &d2);
-    FMQ_LList *l3 = FMQ_LList_NEXT(l2);
-    assert_ptr_equal(l3->data, &d3);
-    FMQ_LList *l4 = FMQ_LList_NEXT(l3);
-    assert_ptr_equal(l4->data, &d4);
-}
-
-static void test_FMQ_LList_DATA(void **state)
-{
-    int d1 = 1;
-    FMQ_LList *l = FMQ_LList_new(&d1);
-    int* result = FMQ_LList_DATA(l);
-    assert_ptr_equal(result, &d1);
-}
-
-static void test_FMQ_LList_destroy(void **state)
-{
-    int d1 = 1;
-    int d2 = 2;
-    int d3 = 3;
-    int d4 = 4;
-    int result;
-    FMQ_LList *l = FMQ_LList_new(&d1);
-    FMQ_LList_insert(l, &d2);
-    FMQ_LList_insert(l, &d3);
-    FMQ_LList_insert(l, &d4);
-    FMQ_LList_destroy(l);
-    assert_int_equal(FMQ_LList_IS_EMPTY(l), 0);
-}
-
-static void test_FMQ_LList_tail(void **state)
-{
-    int d1 = 1;
-    int d2 = 2;
-    int d3 = 3;
-    int d4 = 4;
-    FMQ_LList *l = FMQ_LList_new(&d1);
-    FMQ_LList_insert(l, &d2);
-    FMQ_LList_insert(l, &d3);
-    FMQ_LList_insert(l, &d4);
-    FMQ_LList *l2 = FMQ_LList_NEXT(l);
-    FMQ_LList *l3 = FMQ_LList_NEXT(l2);
-    FMQ_LList *l4 = FMQ_LList_NEXT(l3);
-    FMQ_LList *tail = FMQ_LList_tail(l);
-    assert_ptr_equal(tail, l4);
+    free(d1->value);
+    free(d1);
+    free(d2->value);
+    free(d2);
+    free(d3->value);
+    free(d3);
+    free(d4->value);
+    free(d4);
+    free(d5->value);
+    free(d5);
+    free(n1);
+    free(n2);
+    free(n3);
+    free(n4);
+    free(n5);
+    free(q);
 }
 
 int main()
 {
     const struct CMUnitTest tests[] = {
-            cmocka_unit_test(null_test_success),
-            cmocka_unit_test(test_FMQ_LList_new1),
-            cmocka_unit_test(test_FMQ_LList_insert),
-            cmocka_unit_test(test_FMQ_LList_delete),
-            cmocka_unit_test(test_FMQ_LList_IS_EMPTY),
-            cmocka_unit_test(test_FMQ_LList_size),
-            cmocka_unit_test(test_FMQ_LList_NEXT),
-            cmocka_unit_test(test_FMQ_LList_DATA),
-            cmocka_unit_test(test_FMQ_LList_destroy),
-            cmocka_unit_test(test_FMQ_LList_tail)
+        cmocka_unit_test(TEST_null_test_success),
+        cmocka_unit_test(TEST_FMQ_QNode_new),
+        cmocka_unit_test(TEST_FMQ_Queue_new),
+        cmocka_unit_test(TEST_FMQ_Queue_enqueue),
+        cmocka_unit_test(TEST_FMQ_Queue_dequeue)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
