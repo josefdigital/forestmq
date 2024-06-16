@@ -25,10 +25,3 @@
 
 #include "provider.h"
 
-typedef struct FMQ_Provider     FMQ_Provider;
-
-struct FMQ_Provider
-{
-    
-    void*           data; // extra data from client
-};
