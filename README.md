@@ -31,8 +31,8 @@ To test Forest MQ end to end you can run the following 2 Python scripts:
 - `examples/python/consumer.py`
 
 This will demonstrate that the message queue excepts messages 
-pushed in over HTTP to the queue & the consumer script will
-pop messages off the queue.
+enqueued over HTTP to the queue & the consumer script will
+dequeue messages off the queue.
 
 
 ### Options
