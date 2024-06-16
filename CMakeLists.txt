@@ -35,6 +35,7 @@ target_include_directories(
 target_link_libraries(
         forest_mq
         PRIVATE
+        /opt/homebrew/Cellar/jansson/2.14/lib/libjansson.dylib
         /opt/homebrew/Cellar/ulfius/2.7.15/lib/libulfius.dylib
 )
 
