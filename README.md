@@ -22,7 +22,7 @@ Message Queue 🌲
 Forest MQ is still in very early stages of development, but
 it is usable for test projects. 
 
-As it's missing some fundamental networking security & stability requirements,
+As it's missing some fundamental networking, security & stability requirements,
 it's not recommended for production environments.
 
 To test Forest MQ end to end you can run the following 2 Python scripts:
