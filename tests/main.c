@@ -1,11 +1,12 @@
 #include <stdarg.h>
 #include <stddef.h>
+#include <stdio.h>
 #include <setjmp.h>
 #include <cmocka.h>
 #include <stdlib.h>
 #include <check.h>
 #include <string.h>
-#include "../queue.h"
+#include "../LList.h"
 
 
 static void null_test_success(void **state)
@@ -64,6 +65,10 @@ static void test_FMQ_LList_insert(void **state)
     assert_ptr_equal(list->next->data, data2);
     assert_ptr_not_equal(list->next->data, data3);
     assert_string_equal(((Data*)list->next->data)->name, "Ted");
+    free(list->next->data);
+    free(list->next);
+    free(list->data);
+    free(list);
 }
 
 static void test_FMQ_LList_delete(void **state)
@@ -98,6 +103,8 @@ static void test_FMQ_LList_delete(void **state)
     assert_ptr_equal(list->data, data);
     assert_ptr_equal(list->next->data, data3);
     assert_ptr_equal(list->next->next, NULL);
+    result = FMQ_LList_delete(list, NULL);
+
 }
 
 static void test_FMQ_LList_IS_EMPTY(void **state)
@@ -184,19 +191,98 @@ static void test_FMQ_LList_tail(void **state)
     assert_ptr_equal(tail, l4);
 }
 
+static void TEST_FMQ_LList_enLList(void **state)
+{
+    (void) state;
+    // Setup
+    typedef struct data_t
+    {
+        char *name;
+    } Data;
+
+    Data *data = malloc(sizeof(Data));
+    data->name = calloc(4, sizeof(char));
+    strcpy(data->name, "Joe");
+    FMQ_LList *LList = FMQ_LList_new(data);
+
+    // Setup for FMQ_LList_insert
+    Data *data2 = malloc(sizeof(Data));
+    data2->name = calloc(4, sizeof(char));
+    strcpy(data2->name, "Ted");
+    int result1 = FMQ_LList_enLList(LList, data2);
+
+    // Test
+    Data *data3 = malloc(sizeof(Data)); // for negative test
+    assert_int_equal(result1, L_NO_ERROR);
+    assert_ptr_equal(LList->data, data);
+    assert_string_equal(((Data*)LList->data)->name, "Joe");
+    assert_ptr_equal(LList->next->data, data2);
+    assert_ptr_not_equal(LList->next->data, data3);
+    assert_string_equal(((Data*)LList->next->data)->name, "Ted");
+    free(LList->next->data);
+    free(LList->next);
+    free(LList->data);
+    free(LList);
+}
+
+static void TEST_FMQ_LList_deLList(void **state)
+{
+    (void) state;
+    // Setup
+    typedef struct data_t {
+        char *name;
+    } Data;
+
+    Data *data = malloc(sizeof(Data));
+    data->name = calloc(4, sizeof(char));
+    strcat(data->name, "Joe");
+    FMQ_LList *LList = FMQ_LList_new(data);
+
+    // Insert another item
+    Data *data2 = malloc(sizeof(Data));
+    data2->name = calloc(4, sizeof(char));
+    strcpy(data2->name, "Ted");
+    FMQ_LList_enLList(LList, data2);
+
+    // Insert another item
+    Data *data3 = malloc(sizeof(Data));
+    data3->name = calloc(4, sizeof(char));
+    strcpy(data3->name, "Pat");
+    FMQ_LList_enLList(LList, data3);
+
+    // Delete the #2nd item
+    void *LListHeadData = FMQ_LList_deLList(LList);
+    // Test
+    assert_ptr_equal(LListHeadData, data);
+
+    // assert_ptr_equal(LList->data, data2);
+    Data const *d = FMQ_LList_peak(LList);
+    assert_string_equal(d->name, "Ted");
+    assert_ptr_equal(LList->next->data, data3);
+    assert_ptr_equal(LList->next->next, NULL);
+}
+
+static void TEST_FMQ_LList_peak(void **state)
+{
+    (void) state;
+}
+
 int main()
 {
     const struct CMUnitTest tests[] = {
-            cmocka_unit_test(null_test_success),
-            cmocka_unit_test(test_FMQ_LList_new1),
-            cmocka_unit_test(test_FMQ_LList_insert),
-            cmocka_unit_test(test_FMQ_LList_delete),
-            cmocka_unit_test(test_FMQ_LList_IS_EMPTY),
-            cmocka_unit_test(test_FMQ_LList_size),
-            cmocka_unit_test(test_FMQ_LList_NEXT),
-            cmocka_unit_test(test_FMQ_LList_DATA),
-            cmocka_unit_test(test_FMQ_LList_destroy),
-            cmocka_unit_test(test_FMQ_LList_tail)
+        cmocka_unit_test(null_test_success),
+        cmocka_unit_test(test_FMQ_LList_new1),
+        cmocka_unit_test(test_FMQ_LList_insert),
+        cmocka_unit_test(test_FMQ_LList_delete),
+        cmocka_unit_test(test_FMQ_LList_IS_EMPTY),
+        cmocka_unit_test(test_FMQ_LList_size),
+        cmocka_unit_test(test_FMQ_LList_NEXT),
+        cmocka_unit_test(test_FMQ_LList_DATA),
+        cmocka_unit_test(test_FMQ_LList_destroy),
+        cmocka_unit_test(test_FMQ_LList_tail),
+        cmocka_unit_test(TEST_FMQ_LList_enLList),
+        cmocka_unit_test(TEST_FMQ_LList_deLList),
+        cmocka_unit_test(TEST_FMQ_LList_peak)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
