@@ -1,8 +1,8 @@
-/* @file lists.h */
+/* @file queue.h */
 /**
 * MIT License
 *
-* Copyright (c) 2023 Joe Gasewicz
+* Copyright (c) 2024 Joe Gasewicz
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@
 
 typedef struct FMQ_QNode    FMQ_QNode;
 typedef struct FMQ_Queue    FMQ_Queue;
+typedef struct FMQ_Data     FMQ_Data;
 
 struct FMQ_QNode
 {
@@ -39,6 +40,11 @@ struct FMQ_Queue
     int                     size;
     FMQ_QNode               *head;
     FMQ_QNode               *tail;
+};
+
+struct FMQ_Data
+{
+    void                    *message;
 };
 
 FMQ_QNode *FMQ_QNode_new(void *data);
