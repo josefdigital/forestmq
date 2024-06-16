@@ -24,7 +24,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include "config.h"
 #include "queue.h"
 
 
@@ -71,6 +71,7 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
         tmpHeadNode = tmpHeadNode->next;
     }
     tmpHeadNode->next = node;
+    FMQ_LOGGER("")
 }
 
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)

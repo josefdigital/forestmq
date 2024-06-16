@@ -38,6 +38,7 @@ struct FMQ_QNode
 struct FMQ_Queue
 {
     int                     size;
+    char                    *status;
     FMQ_QNode               *head;
     FMQ_QNode               *tail;
 };
