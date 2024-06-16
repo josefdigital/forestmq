@@ -5,10 +5,10 @@ import requests
 app = Flask(__name__)
 
 
-@app.route('/')
-def hello_world():  # put application's code here
+@app.route('/provider/<count>')
+def provider(count: int):  # put application's code here
     data = {
-        "message": "provider test!",
+        "message": f"test message {count} ",
     }
     r = requests.post("http://localhost:8005/provider", json=data)
     print(f"Request status: {r.status_code}")
@@ -19,4 +19,4 @@ def hello_world():  # put application's code here
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5001)

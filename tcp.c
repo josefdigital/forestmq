@@ -32,14 +32,24 @@
 #include "config.h"
 #define PORT 8005
 
-int callback_consumer(const struct _u_request *request,
+static int callback_consumer(const struct _u_request *request,
     struct _u_response *response, void *queue)
 {
-    ulfius_set_string_body_response(response, 200, "Consumer...");
+    JSON_INDENT(4);
+    const FMQ_QNode *node = FMQ_Queue_dequeue((FMQ_Queue*)queue);
+    if (node == NULL)
+    {
+        FMQ_LOGGER("Queue is empty\n");
+        ulfius_set_json_body_response(response, 204, json_pack("{s:s}", "message", NULL));
+        return U_CALLBACK_CONTINUE;
+    }
+    const FMQ_Data *dataPtr = (FMQ_Data*)node->data;
+    FMQ_LOGGER("Successfully dequeued message for consumer\n");
+    ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", dataPtr->message));
     return U_CALLBACK_CONTINUE;
 }
 
-int callback_provider(const struct _u_request *request,
+static int callback_provider(const struct _u_request *request,
     struct _u_response *response, void *queue)
 {
     JSON_INDENT(4);
