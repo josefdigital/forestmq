@@ -26,4 +26,12 @@
 #ifndef PROVIDER_H
 #define PROVIDER_H
 
+typedef struct FMQ_Provider     FMQ_Provider;
+
+struct FMQ_Provider
+{
+
+    void*           data; // extra data from client
+};
+
 #endif //PROVIDER_H
