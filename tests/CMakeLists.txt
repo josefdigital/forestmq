@@ -9,6 +9,8 @@ find_package(cmocka REQUIRED)
 add_executable(tests main.c
         ../queue.c
         ../queue.h
+        queue_tests.c
+        queue_tests.h
 )
 
 target_include_directories(

@@ -27,6 +27,7 @@
 #include <ulfius.h>
 #include <jansson.h>
 #include <string.h>
+#include <stdbool.h>
 #include "tcp.h"
 #include "queue.h"
 #include "config.h"
@@ -57,11 +58,19 @@ static int callback_provider(const struct _u_request *request,
     JSON_INDENT(4);
     json_t *json_body = ulfius_get_json_body_request(request, NULL);
     const char *message = json_string_value(json_object_get(json_body, "message"));
+    bool destroy = json_boolean_value(json_object_get(json_body, "destroy"));
+    if (destroy) {
+        FMQ_QUEUE_detroy((FMQ_Queue*)queue);
+        FMQ_LOGGER("Successfully destroyed queue\n");
+        ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", message));
+        return U_CALLBACK_CONTINUE;
+    }
     FMQ_LOGGER("Received: %s\n", message);
     FMQ_Data *data = (FMQ_Data*)malloc(sizeof(FMQ_Queue));
     data->message = malloc(sizeof(char) * 1024);
     strcpy(data->message, message);
     FMQ_Queue_enqueue((FMQ_Queue*)queue, data);
+
     ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", message));
 
     json_decref(json_body);
