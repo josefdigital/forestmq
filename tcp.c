@@ -46,6 +46,8 @@ static int callback_consumer(const struct _u_request *request,
     const FMQ_Data *dataPtr = (FMQ_Data*)node->data;
     FMQ_LOGGER("Successfully dequeued message for consumer\n");
     ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", dataPtr->message));
+    free((FMQ_Data*)node->data);
+    free((FMQ_QNode*)node);
     return U_CALLBACK_CONTINUE;
 }
 

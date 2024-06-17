@@ -184,6 +184,102 @@ static void TEST_FMQ_Queue_dequeue(void **state)
     free(q);
 }
 
+static void TEST_FMQ_QUEUE_PEAK(void **state)
+{
+    typedef struct Data {
+        void *value;
+    } Data;
+    FMQ_Queue *q = FMQ_Queue_new();
+    char *name1 = "Joe";
+    char *name2 = "Terry";
+
+    Data *d1 = malloc(sizeof(Data));
+    d1->value = calloc(4, sizeof(char));
+    strcat(d1->value, name1);
+    FMQ_QNode *n1 = FMQ_QNode_new(d1);
+
+    Data *d2 = malloc(sizeof(Data));
+    d2->value = calloc(6, sizeof(char));
+    strcat(d2->value, name2);
+    FMQ_QNode *n2 = FMQ_QNode_new(d2);
+
+    FMQ_Queue_enqueue(q, n1);
+    const FMQ_QNode* resultNode1 = FMQ_QUEUE_PEAK(q);
+    const Data *r1 = resultNode1->data;
+    assert_string_equal(r1->value, d1);
+
+    // after 2 enqueues the head still points to d1
+    FMQ_Queue_enqueue(q, n2);
+    FMQ_QNode* resultNode2 = FMQ_QUEUE_PEAK(q);
+    Data *r2 = resultNode2->data;
+    assert_string_equal(r2->value, d1);
+
+    FMQ_Queue_dequeue(q);
+    // after dequeue we should point at d2
+    resultNode2 = FMQ_QUEUE_PEAK(q);
+    r2 = resultNode2->data;
+    assert_string_equal(r2->value, d2);
+
+    FMQ_Queue_dequeue(q);
+    assert_null(q->head);
+
+    free(d1->value);
+    free(d1);
+    free(d2->value);
+    free(d2);
+    free(n1);
+    free(n2);
+    free(q);
+}
+
+static void TEST_FMQ_QUEUE_SIZE(void **state)
+{
+    typedef struct Data {
+        void *value;
+    } Data;
+    FMQ_Queue *q = FMQ_Queue_new();
+    char *name1 = "Joe";
+    char *name2 = "Terry";
+
+    Data *d1 = malloc(sizeof(Data));
+    d1->value = calloc(4, sizeof(char));
+    strcat(d1->value, name1);
+    FMQ_QNode *n1 = FMQ_QNode_new(d1);
+
+    Data *d2 = malloc(sizeof(Data));
+    d2->value = calloc(6, sizeof(char));
+    strcat(d2->value, name2);
+    FMQ_QNode *n2 = FMQ_QNode_new(d2);
+    assert_int_equal(q->size, 0);
+
+    FMQ_Queue_enqueue(q, n1);
+    const FMQ_QNode* resultNode1 = FMQ_QUEUE_PEAK(q);
+    const Data *r1 = resultNode1->data;
+    assert_int_equal(q->size, 1);
+
+    // after 2 enqueues the head still points to d1
+    FMQ_Queue_enqueue(q, n2);
+    FMQ_QNode* resultNode2 = FMQ_QUEUE_PEAK(q);
+    Data *r2 = resultNode2->data;
+    assert_int_equal(q->size, 2);
+
+    FMQ_Queue_dequeue(q);
+    // after dequeue we should point at d2
+    resultNode2 = FMQ_QUEUE_PEAK(q);
+    r2 = resultNode2->data;
+    assert_int_equal(q->size, 1);
+
+    FMQ_Queue_dequeue(q);
+    assert_int_equal(q->size, 0);
+    free(d1->value);
+    free(d1);
+    free(d2->value);
+    free(d2);
+    free(n1);
+    free(n2);
+    free(q);
+}
+
 int main()
 {
     const struct CMUnitTest tests[] = {
@@ -191,7 +287,9 @@ int main()
         cmocka_unit_test(TEST_FMQ_QNode_new),
         cmocka_unit_test(TEST_FMQ_Queue_new),
         cmocka_unit_test(TEST_FMQ_Queue_enqueue),
-        cmocka_unit_test(TEST_FMQ_Queue_dequeue)
+        cmocka_unit_test(TEST_FMQ_Queue_dequeue),
+        cmocka_unit_test(TEST_FMQ_QUEUE_PEAK),
+        cmocka_unit_test(TEST_FMQ_QUEUE_SIZE)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
