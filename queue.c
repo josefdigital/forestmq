@@ -59,6 +59,7 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
 {
     FMQ_QNode *tmpHeadNode = queue->head;
     FMQ_QNode *node = FMQ_QNode_new(data);
+    queue->size += 1;
     if (queue->tail == NULL)
     {
         queue->head = node;
@@ -76,12 +77,14 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
 
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
 {
+    if (queue->size > 0)
+        queue->size -= 1;
     if (queue->head == NULL)
         return NULL;
 
     FMQ_QNode *node = queue->head;
     queue->head = queue->head->next;
-    // if front becomes null reset queue
+    // if head becomes null reset queue
     if (queue->head == NULL)
         queue->tail = NULL;
     return node;
