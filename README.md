@@ -40,7 +40,7 @@ dequeue messages off the queue.
 - `message` - A string, bytes or JSON object.
 - `destroy` - If set to `true` then the queue will be destroyed & no more messages
 will be stored on the queue until the `destroy: true` options is removed from the provider's
-request body.
+request body or set to `false`.
 
 ### Support
 TODO
