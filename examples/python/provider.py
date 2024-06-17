@@ -9,6 +9,7 @@ app = Flask(__name__)
 def provider(count: int):  # put application's code here
     data = {
         "message": f"test message {count} ",
+        # "destroy": True,
     }
     r = requests.post("http://localhost:8005/provider", json=data)
     print(f"Request status: {r.status_code}")

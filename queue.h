@@ -54,5 +54,6 @@ FMQ_QNode *FMQ_QNode_new(void *data);
 FMQ_Queue *FMQ_Queue_new(void);
 void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data);
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue);
+void FMQ_QUEUE_detroy(FMQ_Queue *queue);
 
 #endif //QUEUE_H

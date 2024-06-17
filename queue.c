@@ -60,7 +60,7 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
     FMQ_QNode *tmpHeadNode = queue->head;
     FMQ_QNode *node = FMQ_QNode_new(data);
     queue->size += 1;
-    if (queue->tail == NULL)
+    if (queue->head == NULL)
     {
         queue->head = node;
         queue->tail = node;
@@ -89,3 +89,32 @@ FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
         queue->tail = NULL;
     return node;
 };
+
+void FMQ_QUEUE_detroy(FMQ_Queue *queue)
+{
+    FMQ_QNode *tmpNodePtr;
+    if (queue->head == NULL)
+    {
+        FMQ_LOGGER("Cannot destroy a queue that is NULL\n");
+        return;
+    }
+    tmpNodePtr = queue->head;
+    while (tmpNodePtr != NULL)
+    {
+        if (queue->size == 0 || tmpNodePtr->next == NULL)
+        {
+            if (queue->head)
+                free(queue->head);
+                queue->size = 0;
+
+            break;
+        }
+        tmpNodePtr = queue->head;
+        queue->head = queue->head->next;
+        queue->size -= 1;
+        if (tmpNodePtr != NULL)
+        {
+            free(tmpNodePtr);
+        }
+    }
+}
