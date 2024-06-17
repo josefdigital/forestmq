@@ -36,7 +36,11 @@ dequeue messages off the queue.
 
 
 ### Options
-TODO
+#### Provider Options:
+- `message` - A string, bytes or JSON object.
+- `destroy` - If set to `true` then the queue will be destroyed & no more messages
+will be sored in the queue until the `destroy: true` options is rmeoved from the providers
+request body.
 
 ### Support
 TODO
