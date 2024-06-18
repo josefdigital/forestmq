@@ -24,6 +24,7 @@
 */
 #ifndef QUEUE_H
 #define QUEUE_H
+#include <stdint.h>
 
 typedef struct FMQ_QNode    FMQ_QNode;
 typedef struct FMQ_Queue    FMQ_Queue;
@@ -41,6 +42,7 @@ struct FMQ_Queue
     char                    *status;
     FMQ_QNode               *head;
     FMQ_QNode               *tail;
+    int16_t                 msg_size;
 };
 
 struct FMQ_Data
@@ -48,12 +50,12 @@ struct FMQ_Data
     void                    *message;
 };
 
-#define FMQ_QUEUE_PEAK(queue) (queue->head)
+#define FMQ_QUEUE_PEEK(queue) (queue->head)
 #define FMQ_QUEUE_SIZE(queue) (queue->size)
 FMQ_QNode *FMQ_QNode_new(void *data);
-FMQ_Queue *FMQ_Queue_new(void);
+FMQ_Queue *FMQ_Queue_new(int16_t msg_size);
 void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data);
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue);
-void FMQ_QUEUE_detroy(FMQ_Queue *queue);
+void FMQ_QUEUE_destroy(FMQ_Queue *queue);
 
 #endif //QUEUE_H

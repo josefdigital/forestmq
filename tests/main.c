@@ -23,9 +23,9 @@ int main()
         cmocka_unit_test(TEST_FMQ_Queue_new),
         cmocka_unit_test(TEST_FMQ_Queue_enqueue),
         cmocka_unit_test(TEST_FMQ_Queue_dequeue),
-        cmocka_unit_test(TEST_FMQ_QUEUE_PEAK),
+        cmocka_unit_test(TEST_FMQ_QUEUE_PEEK),
         cmocka_unit_test(TEST_FMQ_QUEUE_SIZE),
-        cmocka_unit_test(TEST_FMQ_QUEUE_detroy)
+        cmocka_unit_test(TEST_FMQ_QUEUE_destroy)
     };
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

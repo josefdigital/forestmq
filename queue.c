@@ -41,7 +41,7 @@ FMQ_QNode *FMQ_QNode_new(void *data)
     return n; // TODO free
 }
 
-FMQ_Queue *FMQ_Queue_new(void)
+FMQ_Queue *FMQ_Queue_new(int16_t msg_size)
 {
     FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
     if (q == NULL)
@@ -52,6 +52,7 @@ FMQ_Queue *FMQ_Queue_new(void)
     q->head = NULL;
     q->tail = NULL;
     q->size = 0;
+    q->msg_size = msg_size;
     return q; // TODO free
 }
 
@@ -72,7 +73,9 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
         tmpHeadNode = tmpHeadNode->next;
     }
     tmpHeadNode->next = node;
-    FMQ_LOGGER("")
+    queue->tail = node;
+    FMQ_LOGGER("Queue successfully updated\n"
+        "Queue size: %d\n", queue->size);
 }
 
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
@@ -90,7 +93,7 @@ FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
     return node;
 };
 
-void FMQ_QUEUE_detroy(FMQ_Queue *queue)
+void FMQ_QUEUE_destroy(FMQ_Queue *queue)
 {
     FMQ_QNode *tmpNodePtr;
     if (queue->head == NULL)

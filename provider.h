@@ -26,14 +26,14 @@
 #ifndef PROVIDER_H
 #define PROVIDER_H
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct FMQ_Provider     FMQ_Provider;
 
 struct FMQ_Provider
 {
-
-    void*           data; // extra data from client
     bool            destroy;
+    int16_t         msg_size;
 };
 
 #endif //PROVIDER_H

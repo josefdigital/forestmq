@@ -17,4 +17,6 @@
   } \
 }\
 
+#define FMQ_ARRAY_LENGTH(arr) sizeof(arr) / sizeof(arr[0])
+
 #endif //CONFIG_H

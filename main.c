@@ -23,13 +23,32 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "config.h"
 #include "tcp.h"
 #include "queue.h"
 
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    FMQ_Queue *queue = FMQ_Queue_new();
+    int16_t msg_size = 1024;
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--msg-size") == 0)
+        {
+            if (argc < i+1)
+            {
+                printf("--msg-size arg expects an integer value\n");
+                exit(EXIT_FAILURE);
+            }
+            char *msg_size_char = argv[i+1];
+            msg_size = atoi(msg_size_char);
+            FMQ_LOGGER("Set queue message size to %s\n", msg_size_char);
+        }
+    }
+    FMQ_Queue *queue = FMQ_Queue_new(msg_size);
     FMQ_TCP *tcp = FMQ_TCP_new(queue);
     const int err = tcp->start(tcp);
     if (tcp != NULL)
