@@ -35,6 +35,10 @@ enqueued over HTTP to the queue & the consumer script will
 dequeue messages off the queue.
 
 
+### CLI options
+- --msg-size
+- --port `TODO`
+
 ### Options
 #### Provider Options:
 - `message` - A string, bytes or JSON object.
