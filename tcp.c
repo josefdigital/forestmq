@@ -60,7 +60,7 @@ static int callback_provider(const struct _u_request *request,
     const char *message = json_string_value(json_object_get(json_body, "message"));
     bool destroy = json_boolean_value(json_object_get(json_body, "destroy"));
     if (destroy) {
-        FMQ_QUEUE_detroy((FMQ_Queue*)queue);
+        FMQ_QUEUE_destroy((FMQ_Queue*)queue);
         FMQ_LOGGER("Successfully destroyed queue\n");
         ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", message));
         return U_CALLBACK_CONTINUE;

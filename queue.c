@@ -73,7 +73,9 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
         tmpHeadNode = tmpHeadNode->next;
     }
     tmpHeadNode->next = node;
-    FMQ_LOGGER("")
+    queue->tail = node;
+    FMQ_LOGGER("Queue successfully updated\n"
+        "Queue size: %d\n", queue->size);
 }
 
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
@@ -91,7 +93,7 @@ FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
     return node;
 };
 
-void FMQ_QUEUE_detroy(FMQ_Queue *queue)
+void FMQ_QUEUE_destroy(FMQ_Queue *queue)
 {
     FMQ_QNode *tmpNodePtr;
     if (queue->head == NULL)
