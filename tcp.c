@@ -67,7 +67,8 @@ static int callback_provider(const struct _u_request *request,
     }
     FMQ_LOGGER("Received: %s\n", message);
     FMQ_Data *data = (FMQ_Data*)malloc(sizeof(FMQ_Queue));
-    data->message = malloc(sizeof(char) * 1024);
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
+    data->message = malloc(sizeof(char) * q->msg_size);
     strcpy(data->message, message);
     FMQ_Queue_enqueue((FMQ_Queue*)queue, data);
 

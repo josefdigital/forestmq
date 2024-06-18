@@ -41,7 +41,7 @@ FMQ_QNode *FMQ_QNode_new(void *data)
     return n; // TODO free
 }
 
-FMQ_Queue *FMQ_Queue_new(void)
+FMQ_Queue *FMQ_Queue_new(int16_t msg_size)
 {
     FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
     if (q == NULL)
@@ -52,6 +52,7 @@ FMQ_Queue *FMQ_Queue_new(void)
     q->head = NULL;
     q->tail = NULL;
     q->size = 0;
+    q->msg_size = msg_size;
     return q; // TODO free
 }
 
