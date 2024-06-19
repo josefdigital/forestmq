@@ -37,7 +37,7 @@ dequeue messages off the queue.
 
 ### CLI options
 - --msg-size
-- --port `TODO`
+- --port
 
 ### Options
 #### Provider Options:
