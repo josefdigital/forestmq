@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 {
     int16_t msg_size = 1024;
     int16_t port = FMQ_TCP_PORT;
+    int8_t log_level = FMQ_LOG_LEVEL_NONE;
     for (int i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "--msg-size") == 0)
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
             }
             char *msg_size_char = argv[i+1];
             msg_size = atoi(msg_size_char);
-            FMQ_LOGGER("Set queue message size to %s\n", msg_size_char);
+            FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Set queue message size to %s\n", msg_size_char);
         }
         if (strcmp(argv[i], "--port") == 0)
         {
@@ -55,11 +56,27 @@ int main(int argc, char *argv[])
             }
             char *port_char = argv[i+1];
             port = atoi(port_char);
-            FMQ_LOGGER("Set TCP Server port to %s\n", port_char);
+            FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Set TCP Server port to %s\n", port_char);
+        }
+        if (strcmp(argv[i], "--log-level") == 0)
+        {
+            if (argc < i+1)
+            {
+                printf("--log-level should be set to the following:"
+                                            "`none` - no logs"
+                                            "`debug` - all logs`\n");
+                exit(EXIT_FAILURE);
+            }
+            char *log_level_char = argv[i+1];
+            if (strcmp(log_level_char, "none") == 0)
+                log_level = FMQ_LOG_LEVEL_NONE;
+            if (strcmp(log_level_char, "debug") == 0)
+                log_level = FMQ_LOG_LEVEL_DEBUG;
+            FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Log level set to %s\n", log_level_char);
         }
     }
-    FMQ_Queue *queue = FMQ_Queue_new(msg_size);
-    FMQ_TCP *tcp = FMQ_TCP_new(queue, port);
+    FMQ_Queue *queue = FMQ_Queue_new(msg_size, log_level);
+    FMQ_TCP *tcp = FMQ_TCP_new(queue, port, log_level);
     const int err = tcp->start(tcp);
     if (tcp != NULL)
     {

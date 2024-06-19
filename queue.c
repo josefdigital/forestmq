@@ -41,7 +41,7 @@ FMQ_QNode *FMQ_QNode_new(void *data)
     return n; // TODO free
 }
 
-FMQ_Queue *FMQ_Queue_new(int16_t msg_size)
+FMQ_Queue *FMQ_Queue_new(const int16_t msg_size, const int8_t log_level)
 {
     FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
     if (q == NULL)
@@ -53,6 +53,7 @@ FMQ_Queue *FMQ_Queue_new(int16_t msg_size)
     q->tail = NULL;
     q->size = 0;
     q->msg_size = msg_size;
+    q->log_level = log_level;
     return q; // TODO free
 }
 
@@ -74,7 +75,7 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
     }
     tmpHeadNode->next = node;
     queue->tail = node;
-    FMQ_LOGGER("Queue successfully updated\n"
+    FMQ_LOGGER(queue->log_level, "Queue successfully updated\n"
         "Queue size: %d\n", queue->size);
 }
 
@@ -98,7 +99,7 @@ void FMQ_QUEUE_destroy(FMQ_Queue *queue)
     FMQ_QNode *tmpNodePtr;
     if (queue->head == NULL)
     {
-        FMQ_LOGGER("Cannot destroy a queue that is NULL\n");
+        FMQ_LOGGER(queue->log_level, "Cannot destroy a queue that is NULL\n");
         return;
     }
     tmpNodePtr = queue->head;

@@ -32,8 +32,9 @@ struct FMQ_TCP
     int             (*start)(FMQ_TCP *tcp);
     FMQ_Queue       *queue;
     int16_t         port;
+    int8_t          log_level;
 };
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const int16_t port);
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const int16_t port, int8_t log_level);
 
 #endif //TCP_H
