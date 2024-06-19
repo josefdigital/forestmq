@@ -25,15 +25,14 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-
 #include "config.h"
 #include "tcp.h"
 #include "queue.h"
 
-
 int main(int argc, char *argv[])
 {
     int16_t msg_size = 1024;
+    int16_t port = FMQ_TCP_PORT;
     for (int i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "--msg-size") == 0)
@@ -47,9 +46,20 @@ int main(int argc, char *argv[])
             msg_size = atoi(msg_size_char);
             FMQ_LOGGER("Set queue message size to %s\n", msg_size_char);
         }
+        if (strcmp(argv[i], "--port") == 0)
+        {
+            if (argc < i+1)
+            {
+                printf("--port arg expects an integer value\n");
+                exit(EXIT_FAILURE);
+            }
+            char *port_char = argv[i+1];
+            port = atoi(port_char);
+            FMQ_LOGGER("Set TCP Server port to %s\n", port_char);
+        }
     }
     FMQ_Queue *queue = FMQ_Queue_new(msg_size);
-    FMQ_TCP *tcp = FMQ_TCP_new(queue);
+    FMQ_TCP *tcp = FMQ_TCP_new(queue, port);
     const int err = tcp->start(tcp);
     if (tcp != NULL)
     {

@@ -31,7 +31,7 @@
 #include "tcp.h"
 #include "queue.h"
 #include "config.h"
-#define PORT 8005
+
 
 static int callback_consumer(const struct _u_request *request,
     struct _u_response *response, void *queue)
@@ -82,7 +82,7 @@ static int start_server(FMQ_TCP *tcp)
 {
     struct _u_instance instance;
 
-    if (ulfius_init_instance(&instance, PORT, NULL, NULL) != U_OK)
+    if (ulfius_init_instance(&instance, tcp->port, NULL, NULL) != U_OK)
     {
         fprintf(stderr, "Error starting ulfius server\n");
         exit(EXIT_FAILURE);
@@ -107,10 +107,11 @@ static int start_server(FMQ_TCP *tcp)
     return 0;
 }
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue)
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const int16_t port)
 {
     FMQ_TCP *tcp = (FMQ_TCP*)malloc(sizeof(FMQ_TCP));
     tcp->queue = queue;
     tcp->start = start_server;
+    tcp->port = port;
     return tcp;
 }
