@@ -13,7 +13,7 @@ Message Queue 🌲
 - Message acknowledgement `TODO`
 - Message durability / persist `TODO`
 - exchange types (e.g. fan) `TODO`
-- Logging `TODO`
+- Logging ✅
 - Topics `TODO`
 - MacOS distribution with brew `TODO`
 - Linux distribution with snap `TODO`
