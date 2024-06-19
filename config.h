@@ -19,4 +19,6 @@
 
 #define FMQ_ARRAY_LENGTH(arr) sizeof(arr) / sizeof(arr[0])
 
+#define FMQ_TCP_PORT 8005
+
 #endif //CONFIG_H
