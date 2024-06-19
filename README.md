@@ -36,8 +36,11 @@ dequeue messages off the queue.
 
 
 ### CLI options
-- --msg-size
-- --port
+- `--msg-size`  - 32bit integer e.g `--msg-size 1024`
+- `--port`      - 16 bit integer e.g `--port 3000`
+- `--log-level` - Default is `none` e.g `--log-level none`
+  - `none` No logging
+  - `debug` Debugging level logging (includes all logs)
 
 ### Options
 #### Provider Options:

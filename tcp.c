@@ -37,15 +37,16 @@ static int callback_consumer(const struct _u_request *request,
     struct _u_response *response, void *queue)
 {
     JSON_INDENT(4);
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
     const FMQ_QNode *node = FMQ_Queue_dequeue((FMQ_Queue*)queue);
     if (node == NULL)
     {
-        FMQ_LOGGER("Queue is empty\n");
+        FMQ_LOGGER(q->log_level ,"Queue is empty\n");
         ulfius_set_json_body_response(response, 204, json_pack("{s:s}", "message", NULL));
         return U_CALLBACK_CONTINUE;
     }
     const FMQ_Data *dataPtr = (FMQ_Data*)node->data;
-    FMQ_LOGGER("Successfully dequeued message for consumer\n");
+    FMQ_LOGGER(q->log_level, "Successfully dequeued message for consumer\n");
     ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", dataPtr->message));
     free((FMQ_Data*)node->data);
     free((FMQ_QNode*)node);
@@ -55,19 +56,19 @@ static int callback_consumer(const struct _u_request *request,
 static int callback_provider(const struct _u_request *request,
     struct _u_response *response, void *queue)
 {
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
     JSON_INDENT(4);
     json_t *json_body = ulfius_get_json_body_request(request, NULL);
     const char *message = json_string_value(json_object_get(json_body, "message"));
     bool destroy = json_boolean_value(json_object_get(json_body, "destroy"));
     if (destroy) {
         FMQ_QUEUE_destroy((FMQ_Queue*)queue);
-        FMQ_LOGGER("Successfully destroyed queue\n");
+        FMQ_LOGGER(q->log_level, "Successfully destroyed queue\n");
         ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", message));
         return U_CALLBACK_CONTINUE;
     }
-    FMQ_LOGGER("Received: %s\n", message);
+    FMQ_LOGGER(q->log_level, "Received: %s\n", message);
     FMQ_Data *data = (FMQ_Data*)malloc(sizeof(FMQ_Queue));
-    const FMQ_Queue *q = (FMQ_Queue*)queue;
     data->message = malloc(sizeof(char) * q->msg_size);
     strcpy(data->message, message);
     FMQ_Queue_enqueue((FMQ_Queue*)queue, data);
@@ -107,11 +108,12 @@ static int start_server(FMQ_TCP *tcp)
     return 0;
 }
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const int16_t port)
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const int16_t port, const int8_t log_level)
 {
     FMQ_TCP *tcp = (FMQ_TCP*)malloc(sizeof(FMQ_TCP));
     tcp->queue = queue;
     tcp->start = start_server;
     tcp->port = port;
+    tcp->log_level = log_level;
     return tcp;
 }
