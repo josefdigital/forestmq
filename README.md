@@ -17,6 +17,7 @@ Message Queue 🌲
 - Topics `TODO`
 - MacOS distribution with brew `TODO`
 - Linux distribution with snap `TODO`
+- Message encryption `TODO`
 
 ### Quick Start
 Forest MQ is still in very early stages of development, but
@@ -48,6 +49,12 @@ dequeue messages off the queue.
 - `destroy` - If set to `true` then the queue will be destroyed & no more messages
 will be stored on the queue until the `destroy: true` options is removed from the provider's
 request body or set to `false`.
+
+### Clients
+- ForestMQ Python client `TODO`
+- ForestMQ NodeJS client `TODO`
+- ForestMQ Go client `TODO`
+- ForestMQ Dart client `TODO`
 
 ### Support
 TODO
