@@ -100,15 +100,16 @@ static int start_server(FMQ_TCP *tcp)
     else
     {
         fprintf(stderr, "Error starting server...\n");
+        printf("Error: \n\t- Tip: Check that port %d is not busy\n", tcp->port);
     }
-    printf("Stopping server \n");
+    FMQ_LOGGER(tcp->log_level, "Stopping server \n");
 
     ulfius_stop_framework(&instance);
     ulfius_clean_instance(&instance);
     return 0;
 }
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const int16_t port, const int8_t log_level)
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port, const int8_t log_level)
 {
     FMQ_TCP *tcp = (FMQ_TCP*)malloc(sizeof(FMQ_TCP));
     tcp->queue = queue;
