@@ -41,7 +41,7 @@ FMQ_QNode *FMQ_QNode_new(void *data)
     return n; // TODO free
 }
 
-FMQ_Queue *FMQ_Queue_new(const int16_t msg_size, const int8_t log_level)
+FMQ_Queue *FMQ_Queue_new(const u_int16_t msg_size, const int8_t log_level)
 {
     FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
     if (q == NULL)
