@@ -22,16 +22,16 @@ find_package(PkgConfig REQUIRED)
 
 
 if (APPLE)
-target_include_directories(
-        forest_mq
-        PRIVATE
-        /opt/homebrew/Cellar/yder/1.4.20/include
-        /opt/homebrew/Cellar/orcania/2.3.3/include
-        /opt/homebrew/Cellar/libmicrohttpd/1.0.1/include
-        /opt/homebrew/Cellar/jansson/2.14/include
-        /opt/homebrew/Cellar/gnutls/3.8.4/include
-        /opt/homebrew/Cellar/ulfius/2.7.15/include
-)
+    target_include_directories(
+            forest_mq
+            PRIVATE
+            /opt/homebrew/Cellar/yder/1.4.20/include
+            /opt/homebrew/Cellar/orcania/2.3.3/include
+            /opt/homebrew/Cellar/libmicrohttpd/1.0.1/include
+            /opt/homebrew/Cellar/jansson/2.14/include
+            /opt/homebrew/Cellar/gnutls/3.8.4/include
+            /opt/homebrew/Cellar/ulfius/2.7.15/include
+    )
 elseif (UNIX)
     target_include_directories(
             forest_mq

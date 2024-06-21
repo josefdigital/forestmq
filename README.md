@@ -14,6 +14,7 @@ Message Queue 🌲
 - Message durability / persist `TODO`
 - exchange types (e.g. fan) `TODO`
 - Logging ✅
+- Docker `TODO`
 - Topics `TODO`
 - MacOS distribution with brew `TODO`
 - Linux distribution with snap `TODO`
