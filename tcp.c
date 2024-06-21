@@ -88,10 +88,10 @@ static int start_server(FMQ_TCP *tcp)
         fprintf(stderr, "Error starting ulfius server\n");
         exit(EXIT_FAILURE);
     }
-    // declare endpoints
+
     ulfius_add_endpoint_by_val(&instance, "POST", "/consumer", NULL, 0, &callback_consumer, tcp->queue);
     ulfius_add_endpoint_by_val(&instance, "POST", "/provider", NULL, 0, &callback_provider, tcp->queue);
-    // start ulfius framework
+
     if (ulfius_start_framework(&instance) == U_OK)
     {
         printf("Starting server on http://localhost:%d\n", instance.port);
