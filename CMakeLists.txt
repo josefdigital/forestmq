@@ -20,6 +20,8 @@ add_executable(forest_mq main.c
 
 find_package(PkgConfig REQUIRED)
 
+
+if (APPLE)
 target_include_directories(
         forest_mq
         PRIVATE
@@ -30,11 +32,25 @@ target_include_directories(
         /opt/homebrew/Cellar/gnutls/3.8.4/include
         /opt/homebrew/Cellar/ulfius/2.7.15/include
 )
+elseif (UNIX)
+    target_include_directories(
+            forest_mq
+            PRIVATE
+    )
+endif()
 
-target_link_libraries(
-        forest_mq
-        PRIVATE
-        /opt/homebrew/Cellar/jansson/2.14/lib/libjansson.dylib
-        /opt/homebrew/Cellar/ulfius/2.7.15/lib/libulfius.dylib
-)
-
+if (APPLE)
+    target_link_libraries(
+            forest_mq
+            PRIVATE
+            /opt/homebrew/Cellar/jansson/2.14/lib/libjansson.dylib
+            /opt/homebrew/Cellar/ulfius/2.7.15/lib/libulfius.dylib
+    )
+elseif(UNIX)
+    target_link_libraries(
+            forest_mq
+            PRIVATE
+            /opt/homebrew/Cellar/jansson/2.14/lib/libjansson.dylib
+            /opt/homebrew/Cellar/ulfius/2.7.15/lib/libulfius.dylib
+    )
+endif ()
