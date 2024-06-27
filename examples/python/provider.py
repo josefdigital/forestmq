@@ -11,7 +11,7 @@ def provider(count: int):  # put application's code here
         "message": f"test message {count} ",
         # "destroy": True,
     }
-    r = requests.post("http://localhost:8005/provider", json=data)
+    r = requests.post("http://0.0.0.0:8005/provider", json=data)
     print(f"Request status: {r.status_code}")
 
     return {
