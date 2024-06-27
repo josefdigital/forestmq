@@ -1,4 +1,4 @@
-IMG_NAME=bandnoticeboard/nottoboard:forestmq-0.1.2
+IMG_NAME=bandnoticeboard/nottoboard:forestmq-0.1.3
 
 build:
 	mkdir build
@@ -34,7 +34,7 @@ docker-build:
 	docker build --tag $(IMG_NAME) .
 
 docker-run:
-	docker run -p 8005:8005 $(IMG_NAME)
+	docker run -it -p 8005:8005 $(IMG_NAME)
 
 docker-push:
 	docker push $(IMG_NAME)

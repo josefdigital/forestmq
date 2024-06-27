@@ -11,11 +11,11 @@ ENV UNIX = 1
 RUN apt update
 RUN apt install -y libulfius-dev uwsc
 RUN apt install -y libmicrohttpd-dev
-RUN	apt install -y libjansson-dev
-RUN	apt install -y libcurl4-gnutls-dev
-RUN	apt install -y libgnutls28-dev
-RUN	apt install -y libgcrypt20-dev
-RUN	apt install -y libsystemd-dev
+RUN apt install -y libjansson-dev
+RUN apt install -y libcurl4-gnutls-dev
+RUN apt install -y libgnutls28-dev
+RUN apt install -y libgcrypt20-dev
+RUN apt install -y libsystemd-dev
 RUN apt install -y pkg-config
 RUN apt install -y cmake
 
