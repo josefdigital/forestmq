@@ -5,7 +5,7 @@ cmake-build-debug
 */*/.venv
 */*/.idea
 docs
-
+*.bak
 # Prerequisites
 *.d
 
