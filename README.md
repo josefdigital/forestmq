@@ -14,13 +14,18 @@ Message Queue 🌲
 - Message durability / persist `TODO`
 - exchange types (e.g. fan) `TODO`
 - Logging ✅
-- Docker `TODO`
+- Docker ✅
 - Topics `TODO`
 - MacOS distribution with brew `TODO`
 - Linux distribution with snap `TODO`
 - Message encryption `TODO`
 
 ### Quick Start
+#### Run with Docker
+```
+docker run -p 8005:8005 bandnoticeboard/nottoboard:forestmq-0.1.2
+```
+
 Forest MQ is still in very early stages of development, but
 it is usable for test projects. 
 

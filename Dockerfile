@@ -1,21 +1,28 @@
-#FROM --platform=linux/amd64 ubuntu:22.04
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
+#FROM ubuntu:22.04
 
 WORKDIR /forestmq
 
 COPY . .
 
-RUN apt-get update
-RUN apt-get -y install libjansson-dev
-RUN apt-get -y install libjansson-dev
-RUN apt-get -y install libmicrohttpd-dev
-RUN apt-get -y install liborcania-dev
-RUN apt-get -y install libulfius-dev
-RUN apt-get -y install cmake
+ENV APPLE = 0
+ENV UNIX = 1
 
+RUN apt update
+RUN apt install -y libulfius-dev uwsc
+RUN apt install -y libmicrohttpd-dev
+RUN	apt install -y libjansson-dev
+RUN	apt install -y libcurl4-gnutls-dev
+RUN	apt install -y libgnutls28-dev
+RUN	apt install -y libgcrypt20-dev
+RUN	apt install -y libsystemd-dev
+RUN apt install -y pkg-config
+RUN apt install -y cmake
 
-RUN mkdir build
-RUN cd build
-RUN cmake . .
-RUN make
+#RUN mkdir build
+RUN cmake -S . -B build
+RUN make -C build
 
+EXPOSE 8005
+
+CMD ["./build/forest_mq"]
