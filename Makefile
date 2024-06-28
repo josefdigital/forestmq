@@ -1,4 +1,4 @@
-IMG_NAME=bandnoticeboard/nottoboard:forestmq-0.1.3
+IMG_NAME=bandnoticeboard/forestmq:0.1.3
 
 build:
 	mkdir build
