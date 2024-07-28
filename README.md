@@ -71,6 +71,15 @@ request body or set to `false`.
 - ForestMQ Go client `TODO`
 - ForestMQ Dart client `TODO`
 
+### Health
+To check the health of a running ForestMQ:
+```
+curl http://localhost:8005/health
+```
+This should respond with a JSON body:
+```
+{"queue_empty":true,"status":"OK","request_start":"Sun Jul 28 18:59:44 2024\n","request_end":"Sun Jul 28 18:59:44 2024\n"}
+```
 ### Support
 TODO
 
