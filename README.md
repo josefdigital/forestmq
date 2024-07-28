@@ -44,13 +44,13 @@ dequeue messages off the queue.
 
 
 ### CLI options
-| Arg             | Info                                        | Example            |
-|-----------------|---------------------------------------------|--------------------|
-| `--msg-size`    | integer e.g                                 | `--msg-size 1024`  |
-| `--port`        | integer e.g                                 | `--port 3000`      |
-| `--log-level`   | Default is `none` (No logging)              | `--log-level none` |    
-| `debug`         | Debugging level logging (includes all logs) |                    |
-|`--daemon`       | Run ForestMQ in daemon mode                 |                    |
+| Arg           | Info                                        | Example            |
+|---------------|---------------------------------------------|--------------------|
+| `--msg-size`  | integer e.g                                 | `--msg-size 1024`  |
+| `--port`      | integer e.g                                 | `--port 3000`      |
+| `--log-level` | Default is `none` (No logging)              | `--log-level none` |    
+| `--debug`     | Debugging level logging (includes all logs) | `--debug`          |
+| `--daemon`    | Run ForestMQ in daemon mode                 | `--daemon`         |
 
 ### Options
 #### Provider Options:
