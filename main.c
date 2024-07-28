@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdbool.h>
 #include "config.h"
 #include "tcp.h"
 #include "queue.h"
@@ -34,6 +37,23 @@ int main(int argc, char *argv[])
     u_int16_t msg_size = 1024;
     u_int16_t port = FMQ_TCP_PORT;
     int8_t log_level = FMQ_LOG_LEVEL_NONE;
+    bool run_as_daemon = false;
+    pid_t daemon_pid;
+    const char *FORESTMQ_DAEMON = getenv("FORESTMQ_DAEMON");
+    const char *FORESTMQ_PORT = getenv("FORESTMQ_PORT");
+
+    if (FORESTMQ_DAEMON && strcmp(FORESTMQ_DAEMON, "1") == 0)
+    {
+        run_as_daemon = true;
+        FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Running ForestMQ in daemon mode\n");
+    }
+    if (FORESTMQ_PORT)
+    {
+        port = atoi(FORESTMQ_PORT);
+        if (port < 80)
+            goto port_arg_error;
+        FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Set TCP Server port to %s\n", FORESTMQ_PORT);
+    }
     for (int i = 0; i < argc; i++)
     {
         if (strcmp(argv[i], "--msg-size") == 0)
@@ -73,21 +93,60 @@ int main(int argc, char *argv[])
             else goto log_arg_error;
             FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Log level set to %s\n", log_level_char);
         }
+        if (strcmp(argv[i], "--daemon") == 0)
+        {
+            if (!run_as_daemon)
+            {
+                run_as_daemon = true;
+                FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Running ForestMQ in daemon mode\n");
+            }
+        }
     }
 
     FMQ_Queue *queue = FMQ_Queue_new(msg_size, log_level);
-    FMQ_TCP *tcp = FMQ_TCP_new(queue, port, log_level);
-    const int err = tcp->start(tcp);
-    if (tcp != NULL)
+    FMQ_TCP *tcp = FMQ_TCP_new(queue, port, log_level, run_as_daemon);
+    printf("port ---> %d\n", tcp->port);
+    printf("daemon -----> %d\n", tcp->run_as_daemon);
+    if (tcp->run_as_daemon)
     {
-        free(tcp);
+         daemon_pid = fork();
+        if (daemon_pid == -1)
+        {
+            fprintf(stderr, "Error forking daemon process\n");
+            exit(EXIT_FAILURE);
+        }
+        if (daemon_pid == 0)
+        {
+            const int err = tcp->start(tcp);
+            if (tcp != NULL)
+            {
+                free(tcp);
+            }
+            free(queue);
+            if (err)
+            {
+                exit(EXIT_FAILURE);
+            }
+            exit(EXIT_SUCCESS);
+        }
     }
-    free(queue);
-    if (err)
+    else
     {
-        exit(EXIT_FAILURE);
+        const int err = tcp->start(tcp);
+        if (tcp != NULL)
+        {
+            free(tcp);
+        }
+        free(queue);
+        if (err)
+        {
+            exit(EXIT_FAILURE);
+        }
+        exit(EXIT_SUCCESS);
     }
-    exit(EXIT_SUCCESS);
+
+    return EXIT_SUCCESS;
+
 msg_size_arg_error:
     printf("--msg-size arg expects an unsigned integer value\n");
     exit(EXIT_FAILURE);

@@ -28,6 +28,7 @@
 #include <jansson.h>
 #include <string.h>
 #include <stdbool.h>
+#include <time.h>
 #include "tcp.h"
 #include "queue.h"
 #include "config.h"
@@ -79,6 +80,37 @@ static int callback_provider(const struct _u_request *request,
     return U_CALLBACK_CONTINUE;
 }
 
+static int callback_health(const struct _u_request *request,
+    struct _u_response *response, void *queue)
+{
+
+    time_t rawtime_start, rawtime_end;
+    struct tm *req_start;
+    struct tm *req_end;
+
+    time(&rawtime_start);
+    req_start = localtime(&rawtime_start);
+
+    json_t *root = json_object();
+    bool queue_is_empty = false;
+    JSON_INDENT(4);
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
+    const FMQ_QNode *node = FMQ_Queue_dequeue((FMQ_Queue*)queue);
+
+    if (node == NULL)
+        queue_is_empty = true;
+
+    json_object_set_new(root, "queue_empty", json_boolean(queue_is_empty));
+    json_object_set_new(root, "status", json_string("OK"));
+    json_object_set_new(root, "request_start", json_string(asctime(req_start)));
+    time(&rawtime_end);
+    req_end = localtime(&rawtime_end);
+    json_object_set_new(root, "request_end", json_string(asctime(req_end)));
+    ulfius_set_json_body_response(response, 200, json_pack("o*", root));
+    json_decref(root);
+    return U_CALLBACK_CONTINUE;
+}
+
 static int start_server(FMQ_TCP *tcp)
 {
     struct _u_instance instance;
@@ -91,11 +123,14 @@ static int start_server(FMQ_TCP *tcp)
 
     ulfius_add_endpoint_by_val(&instance, "POST", "/consumer", NULL, 0, &callback_consumer, tcp->queue);
     ulfius_add_endpoint_by_val(&instance, "POST", "/provider", NULL, 0, &callback_provider, tcp->queue);
-
+    ulfius_add_endpoint_by_val(&instance, "GET", "/health", NULL, 0, &callback_health, tcp->queue);
     if (ulfius_start_framework(&instance) == U_OK)
     {
         printf("Starting server on http://localhost:%d\n", instance.port);
-        getchar();
+        while(1)
+        {
+            // block main thread
+        }
     }
     else
     {
@@ -109,12 +144,14 @@ static int start_server(FMQ_TCP *tcp)
     return 0;
 }
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port, const int8_t log_level)
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port, const int8_t log_level,
+    bool run_as_daemon)
 {
     FMQ_TCP *tcp = (FMQ_TCP*)malloc(sizeof(FMQ_TCP));
     tcp->queue = queue;
     tcp->start = start_server;
     tcp->port = port;
     tcp->log_level = log_level;
+    tcp->run_as_daemon = run_as_daemon;
     return tcp;
 }

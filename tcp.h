@@ -23,6 +23,8 @@
 * SOFTWARE.
 */#ifndef TCP_H
 #define TCP_H
+#include <stdint.h>
+#include <stdbool.h>
 #include "queue.h"
 
 typedef struct FMQ_TCP      FMQ_TCP;
@@ -33,8 +35,10 @@ struct FMQ_TCP
     FMQ_Queue       *queue;
     u_int16_t         port;
     int8_t          log_level;
+    bool            run_as_daemon;
 };
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port, int8_t log_level);
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port, int8_t log_level,
+    bool run_as_daemon);
 
 #endif //TCP_H
