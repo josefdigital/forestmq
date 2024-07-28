@@ -15,6 +15,7 @@ Message Queue 🌲
 - exchange types (e.g. fan) `TODO`
 - Logging ✅
 - Docker ✅
+- Daemon ✅
 - Topics `TODO`
 - MacOS distribution with brew `TODO`
 - Linux distribution with snap `TODO`
@@ -23,7 +24,7 @@ Message Queue 🌲
 ### Quick Start
 #### Run with Docker
 ```
-docker run -it -p 8005:8005 bandnoticeboard/forestmq:0.1.3
+docker run -p 8005:8005 -e FORESTMQ_DAEMON=1 bandnoticeboard/forestmq:0.2.0
 ```
 
 Forest MQ is still in very early stages of development, but
@@ -43,11 +44,13 @@ dequeue messages off the queue.
 
 
 ### CLI options
-- `--msg-size`  - integer e.g `--msg-size 1024`
-- `--port`      - integer e.g `--port 3000`
-- `--log-level` - Default is `none` e.g `--log-level none`
-  - `none` No logging
-  - `debug` Debugging level logging (includes all logs)
+| Arg             | Info                                        | Example            |
+|-----------------|---------------------------------------------|--------------------|
+| `--msg-size`    | integer e.g                                 | `--msg-size 1024`  |
+| `--port`        | integer e.g                                 | `--port 3000`      |
+| `--log-level`   | Default is `none` (No logging)              | `--log-level none` |    
+| `debug`         | Debugging level logging (includes all logs) |                    |
+|`--daemon`       | Run ForestMQ in daemon mode                 |                    |
 
 ### Options
 #### Provider Options:
@@ -56,12 +59,27 @@ dequeue messages off the queue.
 will be stored on the queue until the `destroy: true` options is removed from the provider's
 request body or set to `false`.
 
+### Environment Variables
+| Name              | Type | Info                         |
+|-------------------|------|------------------------------|
+| `FORESTMQ_DAEMON` | INT  | Run in daemon mode.          |
+| `FORESTMQ_PORT`   | INT  | TCP Server port to listen on |
+
 ### Clients
 - ForestMQ Python client `TODO`
 - ForestMQ NodeJS client `TODO`
 - ForestMQ Go client `TODO`
 - ForestMQ Dart client `TODO`
 
+### Health
+To check the health of a running ForestMQ:
+```
+curl http://localhost:8005/health
+```
+This should respond with a JSON body:
+```
+{"queue_empty":true,"status":"OK","request_start":"Sun Jul 28 18:59:44 2024\n","request_end":"Sun Jul 28 18:59:44 2024\n"}
+```
 ### Support
 TODO
 

@@ -1,5 +1,5 @@
-FROM --platform=linux/amd64 ubuntu:22.04
-#FROM ubuntu:22.04
+#FROM --platform=linux/amd64 ubuntu:22.04
+FROM ubuntu:22.04
 
 WORKDIR /forestmq
 
@@ -24,5 +24,7 @@ RUN cmake -S . -B build
 RUN make -C build
 
 EXPOSE 8005
+
+RUN chmod +x build/forest_mq
 
 CMD ["./build/forest_mq"]

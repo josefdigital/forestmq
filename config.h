@@ -25,6 +25,4 @@
 /* TCP configs */
 #define FMQ_TCP_PORT 8005
 
-
-
 #endif //CONFIG_H

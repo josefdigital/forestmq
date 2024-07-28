@@ -1,11 +1,10 @@
-IMG_NAME=bandnoticeboard/forestmq:0.1.3
+IMG_NAME=bandnoticeboard/forestmq:0.2.0
 
 build:
 	mkdir build
 	cmake -S . -B build
 	cd build
 	make
-
 
 # Development requirements
 # This will install all the required development libraries on a Mac.
@@ -26,15 +25,17 @@ install_deps_linux:
 	sudo apt install -y ibgcrypt20-dev
 	sudo apt install -y ibsystemd-dev
 
-
 docs_init:
 	doxygen -g Doxyfile
 
-docker-build:
+docker-build-mac:
 	docker build --tag $(IMG_NAME) .
 
+docker-build-linux:
+	export DOCKER_DEFAULT_PLATFORM=linux/amd64 && docker build --tag $(IMG_NAME) .
+
 docker-run:
-	docker run -it -p 8005:8005 $(IMG_NAME)
+	docker run -p 8005:8005 $(IMG_NAME)
 
 docker-push:
 	docker push $(IMG_NAME)
@@ -43,4 +44,4 @@ docker-remove:
 	docker rmi $(IMG_NAME)
 
 docker_img_exec:
-	docker run --rm -it --entrypoint /bin/bash bandnoticeboard/nottoboard:forestmq-0.1.2
+	docker run --rm -it --entrypoint /bin/bash $(IMG_NAME)
