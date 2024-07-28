@@ -105,8 +105,6 @@ int main(int argc, char *argv[])
 
     FMQ_Queue *queue = FMQ_Queue_new(msg_size, log_level);
     FMQ_TCP *tcp = FMQ_TCP_new(queue, port, log_level, run_as_daemon);
-    printf("port ---> %d\n", tcp->port);
-    printf("daemon -----> %d\n", tcp->run_as_daemon);
     if (tcp->run_as_daemon)
     {
          daemon_pid = fork();
