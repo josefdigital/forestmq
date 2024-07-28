@@ -72,7 +72,7 @@ request body or set to `false`.
 - ForestMQ Dart client `TODO`
 
 ### Health
-To check the health of a running ForestMQ:
+To check the health of a running ForestMQ instance:
 ```
 curl http://localhost:8005/health
 ```
