@@ -24,7 +24,7 @@ Message Queue 🌲
 ### Quick Start
 #### Run with Docker
 ```
-docker run -p 8005:8005 bandnoticeboard/forestmq:0.3.0 -d
+docker run -p 8005:8005 bandnoticeboard/forestmq:0.4.0 -d
 ```
 
 Forest MQ is still in very early stages of development, but
@@ -78,7 +78,7 @@ curl http://localhost:8005/health
 ```
 ForestMQ will respond with the following JSON response
 ```
-{"queue_empty":true,"status":"OK","request_start":"Sun Jul 28 18:59:44 2024\n","request_end":"Sun Jul 28 18:59:44 2024\n"}
+{"queue_empty":true,"queue_length": 0,"status":"OK","request_start":"Sun Jul 28 18:59:44 2024\n","request_end":"Sun Jul 28 18:59:44 2024\n"}
 ```
 ### Support
 TODO
