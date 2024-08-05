@@ -24,7 +24,7 @@ Message Queue 🌲
 ### Quick Start
 #### Run with Docker
 ```
-docker run -p 8005:8005 -e bandnoticeboard/forestmq:0.2.0
+docker run -p 8005:8005 bandnoticeboard/forestmq:0.3.0 -d
 ```
 
 Forest MQ is still in very early stages of development, but
