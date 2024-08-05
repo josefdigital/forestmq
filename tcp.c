@@ -42,15 +42,34 @@ static int callback_consumer(const struct _u_request *request,
     const FMQ_QNode *node = FMQ_Queue_dequeue((FMQ_Queue*)queue);
     if (node == NULL)
     {
-        FMQ_LOGGER(q->log_level ,"Queue is empty\n");
-        ulfius_set_json_body_response(response, 204, json_pack("{s:s}", "message", NULL));
+        FMQ_LOGGER(q->log_level ,"{consumer}: Queue is empty\n");
+        json_t *root = json_object();
+        json_object_set_new(root, "error", json_string("Queue is empty!"));
+        ulfius_set_json_body_response(response, 200, json_pack("o*", root));
+        json_decref(root);
         return U_CALLBACK_CONTINUE;
     }
     const FMQ_Data *dataPtr = (FMQ_Data*)node->data;
-    FMQ_LOGGER(q->log_level, "Successfully dequeued message for consumer\n");
-    ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", dataPtr->message));
+    json_t *message_load = json_loads(dataPtr->message, JSON_ENCODE_ANY, NULL);
+    if (json_is_null(message_load))
+    {
+        char err_msg[] = "{consumer}: Error: No message in stored queue node.\n";
+        FMQ_LOGGER(q->log_level, "{consumer}: Error: No message in stored queue node.\n");
+        ulfius_set_json_body_response(response, 500, json_pack("{s:s}", "error", err_msg));
+        return U_CALLBACK_CONTINUE;
+    }
+    char *msg_dump = json_dumps(message_load, JSON_COMPACT);
+    FMQ_LOGGER(q->log_level, "{consumer}: Successfully dequeued message for consumer\n");
+    FMQ_LOGGER(q->log_level, "{consumer}: Received: %s\n", msg_dump);
+    free(msg_dump);
     free((FMQ_Data*)node->data);
     free((FMQ_QNode*)node);
+    json_t *root = json_object();
+    JSON_INDENT(4);
+    json_object_set_new(root, "message", message_load);
+
+    ulfius_set_json_body_response(response, 200, json_pack("o*", root));
+    json_decref(root);
     return U_CALLBACK_CONTINUE;
 }
 
@@ -64,7 +83,7 @@ static int callback_provider(const struct _u_request *request,
     bool destroy = json_boolean_value(json_object_get(json_body, "destroy"));
     if (destroy) {
         FMQ_QUEUE_destroy((FMQ_Queue*)queue);
-        FMQ_LOGGER(q->log_level, "Successfully destroyed queue\n");
+        FMQ_LOGGER(q->log_level, "{provider}: Successfully destroyed queue\n");
         ulfius_set_json_body_response(response, 200, json_pack("{s:s}", "message", message));
         return U_CALLBACK_CONTINUE;
     }
@@ -72,18 +91,18 @@ static int callback_provider(const struct _u_request *request,
     {
         json_t *root = json_object();
         char err_msg[] = "Provider did not include a message property in the request body";
-        FMQ_LOGGER(q->log_level, "Error: %s\n", err_msg);
+        FMQ_LOGGER(q->log_level, "{provider}: Error: %s\n", err_msg);
         json_object_set_new(root, "error", json_string(err_msg));
         ulfius_set_json_body_response(response, 500, json_pack("o*", root));
         json_decref(root);
         return U_CALLBACK_CONTINUE;
     }
     char *message_dump = json_dumps(message, JSON_COMPACT);
-    FMQ_LOGGER(q->log_level, "Received: %s\n", message_dump);
+    FMQ_LOGGER(q->log_level, "{provider}: Received: %s\n", message_dump);
     free(message_dump);
     FMQ_Data *data = (FMQ_Data*)malloc(sizeof(FMQ_Queue));
     data->message = malloc(sizeof(char) * q->msg_size);
-    strcpy(data->message, message);
+    strcpy(data->message, json_dumps(message, JSON_COMPACT));
     FMQ_Queue_enqueue((FMQ_Queue*)queue, data);
 
     ulfius_set_json_body_response(response, 200, json_pack("{s:o*}", "message", message));
@@ -107,12 +126,14 @@ static int callback_health(const struct _u_request *request,
     bool queue_is_empty = false;
     JSON_INDENT(4);
     const FMQ_Queue *q = (FMQ_Queue*)queue;
-    const FMQ_QNode *node = FMQ_Queue_dequeue((FMQ_Queue*)queue);
+    const FMQ_QNode *node = FMQ_QUEUE_PEEK((FMQ_Queue*)queue);
+    const int queue_len = FMQ_QUEUE_SIZE((FMQ_Queue*)queue);
 
     if (node == NULL)
         queue_is_empty = true;
 
     json_object_set_new(root, "queue_empty", json_boolean(queue_is_empty));
+    json_object_set_new(root, "queue_length", json_integer(queue_len));
     json_object_set_new(root, "status", json_string("OK"));
     json_object_set_new(root, "request_start", json_string(asctime(req_start)));
     time(&rawtime_end);

@@ -51,8 +51,8 @@ struct FMQ_Data
     void                    *message;
 };
 
-#define FMQ_QUEUE_PEEK(queue) (queue->head)
-#define FMQ_QUEUE_SIZE(queue) (queue->size)
+#define FMQ_QUEUE_PEEK(queue) ((queue)->head)
+#define FMQ_QUEUE_SIZE(queue) ((queue)->size)
 FMQ_QNode *FMQ_QNode_new(void *data);
 FMQ_Queue *FMQ_Queue_new(const u_int16_t msg_size, const int8_t log_level);
 void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data);
