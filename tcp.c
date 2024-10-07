@@ -177,8 +177,8 @@ static int start_server(FMQ_TCP *tcp)
     return 0;
 }
 
-FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port, const int8_t log_level,
-    bool run_as_daemon)
+FMQ_TCP *FMQ_TCP_new(FMQ_Queue *queue, const u_int16_t port,
+    const int8_t log_level,bool run_as_daemon)
 {
     FMQ_TCP *tcp = (FMQ_TCP*)malloc(sizeof(FMQ_TCP));
     tcp->queue = queue;

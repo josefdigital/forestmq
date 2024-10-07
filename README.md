@@ -1,5 +1,5 @@
 ![ForestMQ](assets/fmq_logo.png?raw=true "ForestMQ")
-Message Queue 🌲
+Message Queue built with libevent.
 
 ⚠️ Production ready in v1.0.0
 
@@ -17,10 +17,11 @@ Message Queue 🌲
 - Docker ✅
 - Daemon ✅
 - Topics `TODO`
-- MacOS distribution with brew `TODO`
-- Linux distribution with snap `TODO`
+- MacOS distribution with brew `TODO`*
+- Linux distribution with snap `TODO`*
 - Message encryption `TODO`
 
+\* *As ForestMQ is built on libevent, therefore it's only available for UNIX like systems.*
 ### Quick Start
 #### Run with Docker
 ```
@@ -88,3 +89,6 @@ TODO
 
 ### Contact
 TODO
+
+### Acknowledgement
+- [libevent](https://libevent.org/)

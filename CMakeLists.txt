@@ -16,6 +16,8 @@ add_executable(forest_mq main.c
         exchange.h
         config.c
         config.h
+        server.c
+        server.h
 )
 
 find_package(PkgConfig REQUIRED)
@@ -41,6 +43,7 @@ if (APPLE)
             ${BREW_ROOT}/Cellar/jansson/2.14/include
             ${BREW_ROOT}/Cellar/gnutls/3.8.4/include
             ${BREW_ROOT}/Cellar/ulfius/2.7.15/include
+            ${BREW_ROOT}/Cellar/libevent/2.1.12_1/include
     )
 elseif (UNIX)
     target_include_directories(
@@ -58,6 +61,8 @@ if (APPLE)
             PRIVATE
             ${BREW_ROOT}/Cellar/jansson/2.14/lib/libjansson.dylib
             ${BREW_ROOT}/Cellar/ulfius/2.7.15/lib/libulfius.dylib
+            ${BREW_ROOT}/Cellar/libevent/2.1.12_1/lib/libevent.dylib
+
     )
 elseif(UNIX)
     target_link_libraries(
