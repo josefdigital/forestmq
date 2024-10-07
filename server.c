@@ -26,6 +26,7 @@ static char* get_req_method(enum evhttp_cmd_type cmd)
     }
 }
 
+
 static void resp_callback(struct evhttp_request *req, void *server)
 {
     /*
