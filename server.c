@@ -36,7 +36,7 @@ static void get_request_body(char *json_body, struct evhttp_request *req, FMQ_Qu
 
 static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
 {
-    char body_data[1082]; // buffer
+    char *body_data = malloc(1080 + 1); // buffer
     FMQ_Queue *q = (FMQ_Queue*)queue;
     get_request_body(body_data, req, q);
 
@@ -54,6 +54,7 @@ static void provider_callback(struct evhttp_request *req, struct evbuffer *reply
         char *json_str = json_dumps(root, JSON_INDENT(4));
         evbuffer_add_printf(reply, json_str);
         json_decref(root);
+        free(body_data);
         return;
     }
     const bool destroy = json_boolean_value(json_object_get(json_obj, "destroy"));
@@ -61,11 +62,13 @@ static void provider_callback(struct evhttp_request *req, struct evbuffer *reply
         FMQ_LOGGER(q->log_level, "{provider}: Successfully destroyed queue\n");
         char *json_str = json_dumps(message, JSON_INDENT(4));
         evbuffer_add_printf(reply, json_str);
+        free(body_data);
         return;
     }
 
     // TODO continue here...
     evbuffer_add_printf(reply, "{\"provider\":\"{}\"}");
+    free(body_data);
 }
 
 
