@@ -12,10 +12,15 @@
 #include "server.h"
 #include "config.h"
 
-
-static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
+/**
+ * Gets the request's body as a pointer to a string & stores in body_data
+ * @param body_data The caller is required to free body_data
+ * @param req libevents requests
+ * @param q pointer to FMQ_Queue
+ */
+static void get_request_body(char *json_body, struct evhttp_request *req, FMQ_Queue *q)
 {
-    FMQ_Queue *q = (FMQ_Queue*)queue;
+    // network operation
     struct evbuffer *input_buffer = evhttp_request_get_input_buffer(req);
     size_t body_len = evbuffer_get_length(input_buffer);
     // allocate memory to store the request body
@@ -24,10 +29,42 @@ static void provider_callback(struct evhttp_request *req, struct evbuffer *reply
     {
         evbuffer_copyout(input_buffer, body_data, body_len);
         body_data[body_len] = '\0';
-        FMQ_LOGGER(q->log_level, "request body: %s\n", body_data);
+        memcpy(json_body, body_data, body_len);
         free(body_data);
-
     }
+}
+
+static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
+{
+    char body_data[1082]; // buffer
+    FMQ_Queue *q = (FMQ_Queue*)queue;
+    get_request_body(body_data, req, q);
+
+    FMQ_LOGGER(q->log_level, "JOSN = %s\n", body_data);
+    // turn the request body's data into a jansson JSON object
+    json_error_t error;
+    json_t *json_obj = json_loads(body_data, JSON_INDENT(4), &error);
+    // get JSON object's values
+    json_t *message = json_object_get(json_obj, "message");
+    if (message == NULL)
+    {
+        FMQ_LOGGER(q->log_level, "ERROR: No JSON in request body\n");
+        json_t *root = json_object();
+        json_object_set_new(root, "error", json_string("expected 'message' key in JSON"));
+        char *json_str = json_dumps(root, JSON_INDENT(4));
+        evbuffer_add_printf(reply, json_str);
+        json_decref(root);
+        return;
+    }
+    const bool destroy = json_boolean_value(json_object_get(json_obj, "destroy"));
+    if (destroy) {
+        FMQ_LOGGER(q->log_level, "{provider}: Successfully destroyed queue\n");
+        char *json_str = json_dumps(message, JSON_INDENT(4));
+        evbuffer_add_printf(reply, json_str);
+        return;
+    }
+
+    // TODO continue here...
     evbuffer_add_printf(reply, "{\"provider\":\"{}\"}");
 }
 
