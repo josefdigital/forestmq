@@ -7,23 +7,27 @@
 #include <event2/http.h>
 #include <event2/buffer.h>
 #include <event2/event.h>
-#include <event2/http.h>
 #include <jansson.h>
 #include <microhttpd.h>
 #include "server.h"
 #include "config.h"
 
-static void buff_callback(struct evhttp_request *req, void *buf)
+
+static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
 {
-    printf("here------>%s\n", (char*)buf);
-}
+    FMQ_Queue *q = (FMQ_Queue*)queue;
+    struct evbuffer *input_buffer = evhttp_request_get_input_buffer(req);
+    size_t body_len = evbuffer_get_length(input_buffer);
+    // allocate memory to store the request body
+    char *body_data = malloc(body_len + 1);
+    if (body_data)
+    {
+        evbuffer_copyout(input_buffer, body_data, body_len);
+        body_data[body_len] = '\0';
+        FMQ_LOGGER(q->log_level, "request body: %s\n", body_data);
+        free(body_data);
 
-static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *q)
-{
-    struct evbuffer *buf = evhttp_request_get_input_buffer(req);
-
-    evhttp_request_set_chunked_cb(req, buff_callback);
-
+    }
     evbuffer_add_printf(reply, "{\"provider\":\"{}\"}");
 }
 
