@@ -3,12 +3,30 @@
 //
 
 #include <stdlib.h>
-#include <evhttp.h>
+#include <string.h>
+#include <event2/http.h>
 #include <event2/buffer.h>
 #include <event2/event.h>
 #include <event2/http.h>
+#include <jansson.h>
+#include <microhttpd.h>
 #include "server.h"
 #include "config.h"
+
+static void buff_callback(struct evhttp_request *req, void *buf)
+{
+    printf("here------>%s\n", (char*)buf);
+}
+
+static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *q)
+{
+    struct evbuffer *buf = evhttp_request_get_input_buffer(req);
+
+    evhttp_request_set_chunked_cb(req, buff_callback);
+
+    evbuffer_add_printf(reply, "{\"provider\":\"{}\"}");
+}
+
 
 static char* get_req_method(enum evhttp_cmd_type cmd)
 {
@@ -26,17 +44,9 @@ static char* get_req_method(enum evhttp_cmd_type cmd)
     }
 }
 
-
-static void resp_callback(struct evhttp_request *req, void *server)
+static void resp_callback(struct evhttp_request *req, void *queue)
 {
-    /*
-     *   1) Allocate ev_buffer for reply
-     *   2) GET and Parse request URI (cmd type, host)
-     *   3) write HTML reply  to buffer
-     *   4) send HTTP reply
-     *   5) free allocated memory
-     */
-    const FMQ_Server *s = (FMQ_Server*)server;
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
     struct evbuffer *reply = evbuffer_new();     // <-- Allocate storage for a new evbuffer.
 
     const char *request_uri = evhttp_request_get_uri(req);
@@ -49,17 +59,41 @@ static void resp_callback(struct evhttp_request *req, void *server)
 
     enum evhttp_cmd_type cmd = evhttp_request_get_command(req);
     const char *method = get_req_method(cmd);
+    if (strcmp(method, "unknown") == 0)
+    {
+        evhttp_send_reply(req, MHD_HTTP_NOT_ACCEPTABLE, "Method not recognized", reply);
+    }
+    else
+    {
+        printf("%s %s HTTP/1.1 \n",  method, request_uri);
 
-    printf("%s %s HTTP/1.1 \n", method, request_uri);
+        // check the method & path
+        if (strcmp(method, "POST") == 0 && strcmp(request_uri, "/provider") == 0)
+        {
+            provider_callback(req, reply, queue);
 
-    evbuffer_add_printf(reply, "{\"status\":\"OK\"}");
+        }
+        else if (strcmp(method, "GET") == 0 && strcmp(request_uri, "/consumer") == 0)
+        {
+            evbuffer_add_printf(reply, "{\"consumer\":\"{}\"}");
+        }
+        else if (strcmp(method, "GET") == 0 && strcmp(request_uri, "/health") == 0)
+        {
+            evbuffer_add_printf(reply, "{\"status\":\"OK\"}");
+        }
+        else
+        {
+            evbuffer_add_printf(reply, "NULL"); // TODO 404
+        }
 
 
-    struct evkeyvalq *headers = evhttp_request_get_output_headers(req);
-    evhttp_add_header(headers, "Content-Type", "application/json");
-    evhttp_send_reply(req, HTTP_OK, NULL, reply);
-
-    if ( parsed_uri ) {
+        struct evkeyvalq *headers = evhttp_request_get_output_headers(req);
+        evhttp_add_header(headers, "Content-Type", "application/json");
+        evhttp_send_reply(req, HTTP_OK, NULL, reply);
+    }
+    // cleanup
+    if ( parsed_uri )
+    {
         evhttp_uri_free(parsed_uri);
     }
     evbuffer_free(reply);
@@ -67,12 +101,6 @@ static void resp_callback(struct evhttp_request *req, void *server)
 
 static void my_signal_event_cb(evutil_socket_t fd, short event, void *arg)
 {
-    /*
-     *  Signal event SIGINT call back function
-     *  SIGINT <-- Interrupt from keyboard
-     *  1) Parse, decoding argument
-     *  2) event_base_loopbreak()
-     */
     struct event_base *base = (struct event_base *) arg;
     event_base_loopbreak(base);
 }
@@ -86,8 +114,9 @@ static int start_server(FMQ_Server *s)
 
     int http_handle = evhttp_bind_socket(http_server, (const char *) http_addr, http_port);
 
+    // evhttp_set_max_body_size() TODO
     // handlers
-    evhttp_set_gencb(http_server, resp_callback, s);
+    evhttp_set_gencb(http_server, resp_callback, s->queue);
     // Add SIGINT event
     struct event *sig_int = evsignal_new(base, SIGINT, my_signal_event_cb, base);
     event_add(sig_int, NULL);
@@ -98,6 +127,7 @@ static int start_server(FMQ_Server *s)
     evhttp_free(http_server);
     event_free(sig_int);
     event_base_free(base);
+    return 0;
 }
 
 FMQ_Server *FMQ_Server_new(FMQ_Queue *queue, const uint16_t port,
