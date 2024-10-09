@@ -18,6 +18,8 @@ add_executable(forest_mq main.c
         config.h
         server.c
         server.h
+        utils.c
+        utils.h
 )
 
 find_package(PkgConfig REQUIRED)

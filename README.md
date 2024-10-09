@@ -1,5 +1,5 @@
 ![ForestMQ](assets/fmq_logo.png?raw=true "ForestMQ")
-Message Queue built with libevent.
+Message Queue built on [libevent](https://libevent.org/)
 
 ⚠️ Production ready in v1.0.0
 
@@ -21,7 +21,7 @@ Message Queue built with libevent.
 - Linux distribution with snap `TODO`*
 - Message encryption `TODO`
 
-\* *As ForestMQ is built on libevent, therefore it's only available for UNIX like systems.*
+\* *As ForestMQ currently only support UNIX like systems.*
 ### Quick Start
 #### Run with Docker
 ```
@@ -81,6 +81,17 @@ ForestMQ will respond with the following JSON response
 ```
 {"queue_empty":true,"queue_length": 0,"status":"OK","request_start":"Sun Jul 28 18:59:44 2024\n","request_end":"Sun Jul 28 18:59:44 2024\n"}
 ```
+
+### Security
+Currently, ForestMQ provides the following security features
+*Users will be able to define their own list of hosts in the next release*
+- Only allowed hosts can make requests to any of ForestMQ's endpoints.
+  - Allowed hosts:
+    - `localhost`
+    - `0.0.0.0`
+    - `127.0.0.1`
+    
+
 ### Support
 TODO
 
