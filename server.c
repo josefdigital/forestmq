@@ -4,11 +4,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 #include <event2/http.h>
 #include <event2/buffer.h>
 #include <event2/event.h>
 #include <jansson.h>
-#include <microhttpd.h>
 #include "server.h"
 #include "config.h"
 #include "utils.h"
@@ -132,7 +132,7 @@ static void provider_callback(struct evhttp_request *req, struct evbuffer *reply
 {
     char body_data[FMQ_MESSAGE_SIZE]; // buffer
     FMQ_Queue *q = (FMQ_Queue*)queue;
-    json_t *json_res_object = NULL;
+
     get_request_body(body_data, req, q);
     // turn the request body's data into a jansson JSON object
     json_error_t error;
@@ -169,34 +169,32 @@ static void provider_callback(struct evhttp_request *req, struct evbuffer *reply
         return;
     }
     // Handle successful request & do queue operations
-    char *message_dump = json_dumps(message, JSON_COMPACT);
     FMQ_LOGGER(q->log_level, "{provider}: Received message successfully\n");
     FMQ_Data *data = (FMQ_Data*)malloc(sizeof(FMQ_Queue));
     data->message = malloc(sizeof(char) * q->msg_size);
     // json_dumps must be freed before we can deallocate message
     char *json_q_dump = json_dumps(message, JSON_COMPACT);
     strcpy(data->message, json_q_dump);
-    free(json_q_dump);
-    FMQ_Queue_enqueue((FMQ_Queue*)queue, data);
+    FMQ_Queue_enqueue(q, data);
 
     // Prepare response
-    json_res_object = json_object();
+    json_t *json_res_object = json_object();
+    json_t *message_body = json_pack("o*", message);
     json_object_set_new(json_res_object, "status", json_string(q->status));
     json_object_set_new(json_res_object, "queue_length", json_integer(q->size));
     json_object_set_new(json_res_object, "message_size", json_integer(q->msg_size));
-    json_object_set_new(json_res_object, "message", json_pack("o*", message));
-
+    json_object_set_new(json_res_object, "message", message_body);
     char *json_res_str = json_dumps(json_res_object, JSON_INDENT(4));
-    // clean up
-    json_decref(json_req_object);
-    json_decref(message);
-    free(message_dump);
-    json_decref(json_res_object);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
     evbuffer_add_printf(reply,  json_res_str);
 #pragma GCC diagnostic pop
+    free(json_q_dump);
     free(json_res_str);
+    json_decref(message_body);
+    json_decref(json_req_object);
+    json_decref(json_res_object);
+    json_decref(message);
 }
 
 
@@ -238,7 +236,7 @@ static void resp_callback(struct evhttp_request *req, void *queue)
     if (strcmp(method, "unknown") == 0)
     {
         FMQ_LOGGER(q->log_level, "Host:%s not allowed\n", request_host);
-        evhttp_send_reply(req, MHD_HTTP_NOT_ACCEPTABLE, "Method not recognized", reply);
+        evhttp_send_reply(req, 400, "Method not recognized", reply);
     }
     else if (host_allowed == false)
     {
@@ -270,10 +268,10 @@ static void resp_callback(struct evhttp_request *req, void *queue)
 
         struct evkeyvalq *headers = evhttp_request_get_output_headers(req);
         evhttp_add_header(headers, "Content-Type", "application/json");
-        evhttp_send_reply(req, HTTP_OK, "OK", reply);
+        evhttp_send_reply(req, HTTP_OK, NULL, reply);
     }
     // cleanup
-    if ( parsed_uri )
+    if (parsed_uri)
     {
         evhttp_uri_free(parsed_uri);
     }
@@ -299,6 +297,7 @@ static int start_server(FMQ_Server *s)
     // handlers
     evhttp_set_gencb(http_server, resp_callback, s->queue);
     // Add SIGINT event
+
     struct event *sig_int = evsignal_new(base, SIGINT, my_signal_event_cb, base);
     event_add(sig_int, NULL);
 
