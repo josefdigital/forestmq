@@ -33,7 +33,7 @@ FMQ_QNode *FMQ_QNode_new(void *data)
     FMQ_QNode *n = (FMQ_QNode*)malloc(sizeof(FMQ_QNode));
     if (n == NULL)
     {
-        printf("Couldn't allocate memory for new node\n");
+        printf("{queue}: Couldn't allocate memory for new node\n");
         exit(EXIT_FAILURE);
     }
     n->data = data;
@@ -46,7 +46,7 @@ FMQ_Queue *FMQ_Queue_new(const u_int16_t msg_size, const int8_t log_level)
     FMQ_Queue *q = (FMQ_Queue*)malloc(sizeof(FMQ_Queue));
     if (q == NULL)
     {
-        printf("Couldn't allocate memory for new queue\n");
+        printf("{queue}: Couldn't allocate memory for new queue\n");
         exit(EXIT_FAILURE);
     }
     q->head = NULL;
@@ -75,8 +75,8 @@ void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
     }
     tmpHeadNode->next = node;
     queue->tail = node;
-    FMQ_LOGGER(queue->log_level, "Queue successfully updated\n"
-        "Queue size: %d\n", queue->size);
+    FMQ_LOGGER(queue->log_level, "{queue}: Queue successfully updated\n"
+        "{queue}: Queue size: %d\n", queue->size);
 }
 
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
@@ -99,7 +99,7 @@ void FMQ_QUEUE_destroy(FMQ_Queue *queue)
     FMQ_QNode *tmpNodePtr;
     if (queue->head == NULL)
     {
-        FMQ_LOGGER(queue->log_level, "Cannot destroy a queue that is NULL\n");
+        FMQ_LOGGER(queue->log_level, "{queue}: Cannot destroy a queue that is NULL\n");
         return;
     }
     tmpNodePtr = queue->head;

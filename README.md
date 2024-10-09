@@ -1,5 +1,5 @@
 ![ForestMQ](assets/fmq_logo.png?raw=true "ForestMQ")
-Message Queue 🌲
+Message Queue built on [libevent](https://libevent.org/)
 
 ⚠️ Production ready in v1.0.0
 
@@ -17,14 +17,15 @@ Message Queue 🌲
 - Docker ✅
 - Daemon ✅
 - Topics `TODO`
-- MacOS distribution with brew `TODO`
-- Linux distribution with snap `TODO`
+- MacOS distribution with brew `TODO`*
+- Linux distribution with snap `TODO`*
 - Message encryption `TODO`
 
+\* *ForestMQ currently only support UNIX like systems.*
 ### Quick Start
 #### Run with Docker
 ```
-docker run -p 8005:8005 bandnoticeboard/forestmq:0.4.0 -d
+docker run -p 8005:8005 bandnoticeboard/forestmq:0.5.0
 ```
 
 Forest MQ is still in very early stages of development, but
@@ -80,6 +81,17 @@ ForestMQ will respond with the following JSON response
 ```
 {"queue_empty":true,"queue_length": 0,"status":"OK","request_start":"Sun Jul 28 18:59:44 2024\n","request_end":"Sun Jul 28 18:59:44 2024\n"}
 ```
+
+### Security
+Currently, ForestMQ provides the following security features
+*Users will be able to define their own list of hosts in the next release*
+- Only allowed hosts can make requests to any of ForestMQ's endpoints.
+  - Allowed hosts:
+    - `localhost`
+    - `0.0.0.0`
+    - `127.0.0.1`
+    
+
 ### Support
 TODO
 
@@ -88,3 +100,6 @@ TODO
 
 ### Contact
 TODO
+
+### Acknowledgement
+- [libevent](https://libevent.org/)

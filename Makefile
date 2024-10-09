@@ -1,4 +1,4 @@
-IMG_NAME=bandnoticeboard/forestmq:0.4.0
+IMG_NAME=bandnoticeboard/forestmq:0.5.0
 
 build:
 	mkdir build
@@ -9,21 +9,17 @@ build:
 # Development requirements
 # This will install all the required development libraries on a Mac.
 install_deps_mac:
-	brew install gnutls
-	brew install ulfius
 	brew install check
 	brew install cmocka
 	brew install doxygen
+	brew install jansson
+	brew install libevent
 
 
 install_deps_linux:
-	sudo apt install -y libulfius-dev uwsc
-	sudo apt install -y libmicrohttpd-dev
 	sudo apt install -y libjansson-dev
-	sudo apt install -y ibcurl4-gnutls-dev
-	sudo apt install -y ibgnutls28-dev
-	sudo apt install -y ibgcrypt20-dev
-	sudo apt install -y ibsystemd-dev
+	sudo apt install -y libsystemd-dev
+	sudo apt install -y libevent-dev
 
 docs_init:
 	doxygen -g Doxyfile

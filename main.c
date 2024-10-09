@@ -29,12 +29,12 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include "config.h"
-#include "tcp.h"
 #include "queue.h"
+#include "server.h"
 
 int main(int argc, char *argv[])
 {
-    u_int16_t msg_size = 1024;
+    u_int16_t msg_size = FMQ_MESSAGE_SIZE;
     u_int16_t port = FMQ_TCP_PORT;
     int8_t log_level = FMQ_LOG_LEVEL_NONE;
     bool run_as_daemon = false;
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
     }
 
     FMQ_Queue *queue = FMQ_Queue_new(msg_size, log_level);
-    FMQ_TCP *tcp = FMQ_TCP_new(queue, port, log_level, run_as_daemon);
-    if (tcp->run_as_daemon)
+    FMQ_Server *server = FMQ_Server_new(queue, port, log_level, run_as_daemon);
+    if (server->run_as_daemon)
     {
          daemon_pid = fork();
         if (daemon_pid == -1)
@@ -115,10 +115,10 @@ int main(int argc, char *argv[])
         }
         if (daemon_pid == 0)
         {
-            const int err = tcp->start(tcp);
-            if (tcp != NULL)
+            const int err = server->start(server);
+            if (server != NULL)
             {
-                free(tcp);
+                free(server);
             }
             free(queue);
             if (err)
@@ -130,10 +130,10 @@ int main(int argc, char *argv[])
     }
     else
     {
-        const int err = tcp->start(tcp);
-        if (tcp != NULL)
+        const int err = server->start(server);
+        if (server != NULL)
         {
-            free(tcp);
+            free(server);
         }
         free(queue);
         if (err)
