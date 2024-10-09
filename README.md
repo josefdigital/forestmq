@@ -21,7 +21,7 @@ Message Queue built on [libevent](https://libevent.org/)
 - Linux distribution with snap `TODO`*
 - Message encryption `TODO`
 
-\* *As ForestMQ currently only support UNIX like systems.*
+\* *ForestMQ currently only support UNIX like systems.*
 ### Quick Start
 #### Run with Docker
 ```

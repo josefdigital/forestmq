@@ -37,7 +37,59 @@ static void get_request_body(char *json_body, struct evhttp_request *req, FMQ_Qu
 
 static void consumer_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
 {
-
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
+    const FMQ_QNode *node = FMQ_Queue_dequeue((FMQ_Queue*)queue);
+    if (node == NULL)
+    {
+        FMQ_LOGGER(q->log_level ,"{consumer}: Queue is empty\n");
+        json_t *root = json_object();
+        json_object_set_new(root, "error", json_string("Queue is empty!"));
+        char *json_str = json_dumps(root, JSON_INDENT(4));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+        evbuffer_add_printf(reply,  json_str);
+#pragma GCC diagnostic pop
+        free(json_str);
+        json_decref(root);
+        return;
+    }
+    const FMQ_Data *dataPtr = (FMQ_Data*)node->data;
+    json_t *message_load = json_loads(dataPtr->message, JSON_ENCODE_ANY, NULL);
+    if (json_is_null(message_load))
+    {
+        const char *err_msg = "{consumer}: Error: No message in stored queue node.";
+        json_t *err_json = json_object();
+        json_object_set_new(err_json, "error", json_string(err_msg));
+        FMQ_LOGGER(q->log_level, "{consumer}: Error: No message in stored queue node.\n");
+        char *json_str = json_dumps(err_json, JSON_INDENT(4));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+        evbuffer_add_printf(reply,  json_str);
+#pragma GCC diagnostic pop
+        free(json_str);
+        json_decref(err_json);
+        return;
+    }
+    char *msg_dump = json_dumps(message_load, JSON_COMPACT);
+    FMQ_LOGGER(q->log_level, "{consumer}: Successfully dequeued message for consumer\n");
+    FMQ_LOGGER(q->log_level, "{consumer}: Received: %s\n", msg_dump);
+    free(msg_dump);
+    free((FMQ_Data*)node->data);
+    free((FMQ_QNode*)node);
+    json_t *json_res_object = json_object();
+    JSON_INDENT(4);
+    json_object_set_new(json_res_object, "status", json_string(q->status));
+    json_object_set_new(json_res_object, "queue_length", json_integer(q->size));
+    json_object_set_new(json_res_object, "message_size", json_integer(q->msg_size));
+    json_object_set_new(json_res_object, "message", message_load);
+    char *json_str = json_dumps(json_res_object, JSON_INDENT(4));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+        evbuffer_add_printf(reply,  json_str);
+#pragma GCC diagnostic pop
+    free(json_str);
+    json_decref(message_load);
+    json_decref(json_res_object);
 }
 
 static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
@@ -165,9 +217,9 @@ static void resp_callback(struct evhttp_request *req, void *queue)
             provider_callback(req, reply, queue);
 
         }
-        else if (strcmp(method, "GET") == 0 && strcmp(request_uri, "/consumer") == 0)
+        else if (strcmp(method, "POST") == 0 && strcmp(request_uri, "/consumer") == 0)
         {
-            evbuffer_add_printf(reply, "{\"consumer\":\"{}\"}");
+            consumer_callback(req, reply, queue);
         }
         else if (strcmp(method, "GET") == 0 && strcmp(request_uri, "/health") == 0)
         {
