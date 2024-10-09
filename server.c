@@ -92,6 +92,42 @@ static void consumer_callback(struct evhttp_request *req, struct evbuffer *reply
     json_decref(json_res_object);
 }
 
+
+static void health_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
+{
+    time_t rawtime_start, rawtime_end;
+    struct tm *req_start;
+    struct tm *req_end;
+
+    time(&rawtime_start);
+    req_start = localtime(&rawtime_start);
+
+    json_t *root = json_object();
+    bool queue_is_empty = false;
+    JSON_INDENT(4);
+    const FMQ_Queue *q = (FMQ_Queue*)queue;
+    const FMQ_QNode *node = FMQ_QUEUE_PEEK((FMQ_Queue*)queue);
+    const int queue_len = FMQ_QUEUE_SIZE((FMQ_Queue*)queue);
+
+    if (node == NULL)
+        queue_is_empty = true;
+
+    json_object_set_new(root, "queue_empty", json_boolean(queue_is_empty));
+    json_object_set_new(root, "queue_length", json_integer(queue_len));
+    json_object_set_new(root, "status", json_string("OK"));
+    json_object_set_new(root, "request_start", json_string(asctime(req_start)));
+    time(&rawtime_end);
+    req_end = localtime(&rawtime_end);
+    json_object_set_new(root, "request_end", json_string(asctime(req_end)));
+    char *json_str = json_dumps(root, JSON_INDENT(4));
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+        evbuffer_add_printf(reply,  json_str);
+#pragma GCC diagnostic pop
+    free(json_str);
+    json_decref(root);
+}
+
 static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
 {
     char body_data[FMQ_MESSAGE_SIZE]; // buffer
@@ -119,7 +155,8 @@ static void provider_callback(struct evhttp_request *req, struct evbuffer *reply
         return;
     }
     const bool destroy = json_boolean_value(json_object_get(json_req_object, "destroy"));
-    if (destroy) {
+    if (destroy)
+    {
         FMQ_LOGGER(q->log_level, "{provider}: Successfully destroyed queue\n");
         char *json_str = json_dumps(message, JSON_INDENT(4));
 #pragma GCC diagnostic push
@@ -223,7 +260,7 @@ static void resp_callback(struct evhttp_request *req, void *queue)
         }
         else if (strcmp(method, "GET") == 0 && strcmp(request_uri, "/health") == 0)
         {
-            evbuffer_add_printf(reply, "{\"status\":\"OK\"}");
+            health_callback(req, reply, queue);
         }
         else
         {
