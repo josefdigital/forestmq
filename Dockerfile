@@ -3,10 +3,13 @@ FROM ubuntu:22.04
 
 WORKDIR /forestmq
 
-COPY . .
+COPY CMakeLists.txt .
+COPY *.c .
+COPY *.h .
+COPY Dockerfile .
 
-ENV APPLE = 0
-ENV UNIX = 1
+ENV APPLE=0
+ENV UNIX=1
 
 RUN apt update
 RUN apt install -y libjansson-dev

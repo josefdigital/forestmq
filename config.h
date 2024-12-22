@@ -24,7 +24,7 @@
 
 /* TCP configs */
 #define FMQ_TCP_PORT 8005
-#define FMQ_MESSAGE_SIZE 1024
+#define FMQ_MESSAGE_SIZE 1024 * 5  // TODO add to runtime args
 
 #define FMQ_ALLOWED_HOSTS_LENGTH 20
 
