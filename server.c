@@ -130,13 +130,14 @@ static void health_callback(struct evhttp_request *req, struct evbuffer *reply, 
 
 static void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
 {
-    char body_data[FMQ_MESSAGE_SIZE]; // buffer
     FMQ_Queue *q = (FMQ_Queue*)queue;
-
+    char body_data[q->msg_size]; // buffer
     get_request_body(body_data, req, q);
     // turn the request body's data into a jansson JSON object
     json_error_t error;
-    json_t *json_req_object = json_loads(body_data, JSON_INDENT(4), &error);
+    json_t *json_req_object = json_loads(body_data, JSON_INDENT(0), &error);
+    if (strlen(error.text) > 0)
+        FMQ_LOGGER(q->log_level, "{provider} ERROR: %s\n", error.text);
     // get JSON object's values
     json_t *message = json_object_get(json_req_object, "message");
     if (message == NULL)
