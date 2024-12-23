@@ -26,8 +26,8 @@
 #define FMQ_TCP_PORT 8005
 #define FMQ_MESSAGE_SIZE 1024 * 5  // Python requests JSON body is always > 10000
 
-#define FMQ_ALLOWED_HOSTS_LENGTH 100 // e.g host.docker.internal
+#define FMQ_ALLOWED_HOSTS_LENGTH 10
 #define FMQ_ALLOWED_HOSTS_BYTES 1080
-#define FMQ_DEFAULT_ALLOWED_HOSTS "localhost,0.0.0.0,127.0.0.1"
+#define FMQ_DEFAULT_ALLOWED_HOSTS "localhost,0.0.0.0,127.0.0.1,host.docker.internal"
 
 #endif //CONFIG_H

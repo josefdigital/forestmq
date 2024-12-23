@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "queue.h"
+#include "config.h"
 
 
 typedef struct FMQ_Server           FMQ_Server;
@@ -18,6 +19,7 @@ struct FMQ_Server
     uint16_t            port;
     int8_t              log_level;
     bool                run_as_daemon;
+    char                *allowed_hosts[FMQ_ALLOWED_HOSTS_BYTES];
 };
 
 

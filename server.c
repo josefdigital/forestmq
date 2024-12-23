@@ -222,7 +222,7 @@ static void resp_callback(struct evhttp_request *req, void *queue)
 
     const char *request_uri = evhttp_request_get_uri(req);
     const char *request_host = evhttp_request_get_host(req);
-    const char *allowed_hosts[FMQ_ALLOWED_HOSTS_LENGTH] = {"localhost", "0.0.0.0", "127.0.0.1"};
+    const char *allowed_hosts[FMQ_ALLOWED_HOSTS_LENGTH] = {"localhost", "0.0.0.0", "127.0.0.1", "host.docker.internal"};
     const bool host_allowed = check_allowed_hosts(request_host, allowed_hosts);
 
     struct evhttp_uri *parsed_uri = evhttp_uri_parse(request_uri);
