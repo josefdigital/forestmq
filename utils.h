@@ -6,6 +6,7 @@
 #define UTILS_H
 
 
-bool check_allowed_hosts(const char *request_host, const char *allowed_hosts[FMQ_ALLOWED_HOSTS_LENGTH]);
+bool check_allowed_hosts(const char *request_host, char **allowed_hosts,
+    int allowed_hosts_len);
 
 #endif //UTILS_H

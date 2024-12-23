@@ -215,15 +215,15 @@ static char* get_req_method(enum evhttp_cmd_type cmd)
     }
 }
 
-static void resp_callback(struct evhttp_request *req, void *queue)
+static void resp_callback(struct evhttp_request *req, void *server)
 {
-    const FMQ_Queue *q = (FMQ_Queue*)queue;
+    const FMQ_Server *s = (FMQ_Server*)server;
+    const FMQ_Queue *q = (FMQ_Queue*)s->queue;
     struct evbuffer *reply = evbuffer_new();     // <-- Allocate storage for a new evbuffer.
 
     const char *request_uri = evhttp_request_get_uri(req);
     const char *request_host = evhttp_request_get_host(req);
-    const char *allowed_hosts[FMQ_ALLOWED_HOSTS_LENGTH] = {"localhost", "0.0.0.0", "127.0.0.1", "host.docker.internal"};
-    const bool host_allowed = check_allowed_hosts(request_host, allowed_hosts);
+    const bool host_allowed = check_allowed_hosts(request_host, s->allowed_hosts, s->allowed_hosts_len);
 
     struct evhttp_uri *parsed_uri = evhttp_uri_parse(request_uri);
     if (!parsed_uri)
@@ -250,16 +250,16 @@ static void resp_callback(struct evhttp_request *req, void *queue)
         // check the method & path
         if (strcmp(method, "POST") == 0 && strcmp(request_uri, "/provider") == 0)
         {
-            provider_callback(req, reply, queue);
+            provider_callback(req, reply, s->queue);
 
         }
         else if (strcmp(method, "POST") == 0 && strcmp(request_uri, "/consumer") == 0)
         {
-            consumer_callback(req, reply, queue);
+            consumer_callback(req, reply, s->queue);
         }
         else if (strcmp(method, "GET") == 0 && strcmp(request_uri, "/health") == 0)
         {
-            health_callback(req, reply, queue);
+            health_callback(req, reply, s->queue);
         }
         else
         {
@@ -296,7 +296,7 @@ static int start_server(FMQ_Server *s)
 
     // evhttp_set_max_body_size() TODO
     // handlers
-    evhttp_set_gencb(http_server, resp_callback, s->queue);
+    evhttp_set_gencb(http_server, resp_callback, s);
     // Add SIGINT event
 
     struct event *sig_int = evsignal_new(base, SIGINT, my_signal_event_cb, base);
@@ -312,7 +312,7 @@ static int start_server(FMQ_Server *s)
 }
 
 FMQ_Server *FMQ_Server_new(FMQ_Queue *queue, const uint16_t port,
-                       const int8_t log_level, bool run_as_daemon)
+                       const int8_t log_level, bool run_as_daemon, char *hosts)
 {
     FMQ_Server *server = (FMQ_Server*)malloc(sizeof(FMQ_Server));
     server->queue = queue;
@@ -320,5 +320,35 @@ FMQ_Server *FMQ_Server_new(FMQ_Queue *queue, const uint16_t port,
     server->port = port;
     server->log_level = log_level;
     server->run_as_daemon = run_as_daemon;
+    // allowed hosts
+    int maxTokens = 0; // get the number of hosts
+    for (int i = 0; hosts[i] != '\0'; i++)
+    {
+        if (hosts[i] == ',')
+            maxTokens++;
+    }
+    maxTokens++; // 1+ for the last host
+    server->allowed_hosts_len = maxTokens;
+    server->allowed_hosts = malloc(maxTokens * sizeof(char *));
+    if (server->allowed_hosts == NULL)
+    {
+        perror("server->allowed_hosts malloc fail");
+        exit(1);
+    }
+    int index = 0;
+    char *token;
+    char * delimiter = ",";
+    token = strtok(hosts, delimiter);
+    while (token != NULL)
+    {
+        server->allowed_hosts[index] = strdup(token);
+        if (server->allowed_hosts[index] == NULL)
+        {
+            perror("strdup failed for server->allowed_hosts");
+            exit(1);
+        }
+        index++;
+        token = strtok(NULL, delimiter);
+    }
     return server;
 }

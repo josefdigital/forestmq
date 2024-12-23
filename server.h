@@ -19,11 +19,12 @@ struct FMQ_Server
     uint16_t            port;
     int8_t              log_level;
     bool                run_as_daemon;
-    char                *allowed_hosts[FMQ_ALLOWED_HOSTS_BYTES];
+    char                **allowed_hosts;
+    int                 allowed_hosts_len;
 };
 
 
 FMQ_Server *FMQ_Server_new(FMQ_Queue *queue, const uint16_t port, int8_t log_level,
-    bool run_as_daemon);
+    bool run_as_daemon, char *hosts);
 
 #endif //SERVER_H

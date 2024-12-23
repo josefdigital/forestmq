@@ -52,7 +52,7 @@ dequeue messages off the queue.
 | `--log-level` | Default is `none` (No logging)              | `--log-level none`  |    
 |               | Debugging level logging (includes all logs) | `--log-level debug` |
 | `--daemon`    | Run ForestMQ in daemon mode                 | `--daemon`          |
-
+| `--hosts`     | Add a list of allowed hosts                 | `--hosts localhost,127.0.0.1` |
 ### Options
 #### Provider Options:
 - `message` - A string, bytes or JSON object.
@@ -83,13 +83,7 @@ ForestMQ will respond with the following JSON response
 ```
 
 ### Security
-Currently, ForestMQ provides the following security features
-*Users will be able to define their own list of hosts in the next release*
-- Only allowed hosts can make requests to any of ForestMQ's endpoints.
-  - Allowed hosts:
-    - `localhost`
-    - `0.0.0.0`
-    - `127.0.0.1`
+N/A
     
 
 ### Support
