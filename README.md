@@ -25,7 +25,7 @@ Message Queue built on [libevent](https://libevent.org/)
 ### Quick Start
 #### Run with Docker
 ```
-docker run -p 8005:8005 bandnoticeboard/forestmq:0.5.2
+docker run -p 8005:8005 bandnoticeboard/forestmq:0.6.0
 ```
 
 Forest MQ is still in very early stages of development, but
