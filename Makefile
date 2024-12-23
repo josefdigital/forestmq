@@ -37,7 +37,7 @@ docker-push:
 	docker push $(IMG_NAME)
 
 docker-remove:
-	docker rmi $(IMG_NAME)
+	docker rmi $(IMG_NAME) --force
 
 docker_img_exec:
 	docker run --rm -it --entrypoint /bin/bash $(IMG_NAME)

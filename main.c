@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
     u_int16_t msg_size = FMQ_MESSAGE_SIZE;
     u_int16_t port = FMQ_TCP_PORT;
     int8_t log_level = FMQ_LOG_LEVEL_NONE;
-    char allowed_hosts[FMQ_ALLOWED_HOSTS_BYTES] = FMQ_DEFAULT_ALLOWED_HOSTS;
+    char user_hosts[FMQ_ALLOWED_HOSTS_BYTES] = FMQ_DEFAULT_ALLOWED_HOSTS;
+    char *allowed_hosts[FMQ_ALLOWED_HOSTS_BYTES];
     bool run_as_daemon = false;
     pid_t daemon_pid;
     const char *FORESTMQ_DAEMON = getenv("FORESTMQ_DAEMON");
@@ -102,10 +103,20 @@ int main(int argc, char *argv[])
                 FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Running ForestMQ in daemon mode\n");
             }
         }
+        if (strcmp(argv[i], "--hosts") == 0)
+        {
+            if (argc < i+1)
+                goto allowed_hosts_error;
+            char *allowed_hosts_char = argv[i+1];
+            if (allowed_hosts_char == NULL)
+                goto allowed_hosts_error;
+            strcpy(user_hosts, allowed_hosts_char);
+            FMQ_LOGGER(FMQ_LOG_LEVEL_DEBUG, "Allowed hosts set to %s\n", user_hosts);
+        }
     }
 
     FMQ_Queue *queue = FMQ_Queue_new(msg_size, log_level);
-    FMQ_Server *server = FMQ_Server_new(queue, port, log_level, run_as_daemon);
+    FMQ_Server *server = FMQ_Server_new(queue, port, log_level, run_as_daemon, user_hosts);
     if (server->run_as_daemon)
     {
          daemon_pid = fork();
@@ -163,5 +174,12 @@ log_arg_error:
         "\t`--log-level none` - no logs\n"
         "\t`--log-level debug` - all logs\n"
     );
+    exit(EXIT_FAILURE);
+allowed_hosts_error:
+    printf(
+         "Arg Error:\n"
+         "--hosts should be set like the following:\n"
+         "\t`--hosts localhost,0.0.0.0`\n"
+     );
     exit(EXIT_FAILURE);
 }
