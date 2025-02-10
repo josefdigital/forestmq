@@ -16,8 +16,8 @@ add_executable(forest_mq main.c
         server.h
         utils.c
         utils.h
-        ampq.c
-        ampq.h
+        amqp.c
+        amqp.h
         tcp.c
         tcp.h
 )

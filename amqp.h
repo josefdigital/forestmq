@@ -2,4 +2,9 @@
 // Created by Joe (Personal) on 10/02/2025.
 //
 
-#include "ampq.h"
+#ifndef AMQP_H
+#define AMQP_H
+
+
+
+#endif //AMQP_H
