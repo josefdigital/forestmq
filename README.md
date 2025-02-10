@@ -8,7 +8,7 @@ Message Queue built on [libevent](https://libevent.org/)
 
 ### Features
 - TCP ✅
-- amqp-v1.0 `TODO`
+- amqp-v2.0 ✅
 - Multiple queues `TODO`
 - Message acknowledgement `TODO`
 - Message durability / persist `TODO`
