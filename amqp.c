@@ -13,14 +13,14 @@
 #include <event.h>
 #include "amqp.h"
 
-#define AMQP_HOST = "localhost" // TODO
+#define AMQP_HOST "localhost" // TODO
 #define AMQP_PORT 5672
 #define AMQP_QUEUE "forest_queue"
 
 static amqp_connection_state_t amqp_conn;
 static amqp_socket_t *amqp_socket;
 
-static void setup_ampq_connection()
+void setup_ampq_connection()
 {
     amqp_conn = amqp_new_connection();
     amqp_socket = amqp_tcp_socket_new(amqp_conn);
@@ -31,7 +31,24 @@ static void setup_ampq_connection()
     }
     if (amqp_socket_open(amqp_socket, AMQP_HOST, AMQP_PORT))
     {
-
+        fprintf(stderr, "Failed to create AMQP socket\n");
+        return;
     }
-
+    amqp_login(
+        amqp_conn,
+        "/",
+        0,
+        131072,
+        0,
+        AMQP_SASL_METHOD_PLAIN,
+        "guest",
+        "guest");
+    amqp_channel_open(amqp_conn, 1);
+    amqp_queue_declare(
+        amqp_conn,
+        1,
+        amqp_cstring_bytes(AMQP_QUEUE),
+        0,0,0,0,
+        amqp_empty_table);
 }
+
