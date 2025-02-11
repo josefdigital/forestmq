@@ -3,52 +3,57 @@
 //
 
 
+#include <amqp.h>
+#include <amqp_framing.h>
+#include <amqp_tcp_socket.h>
+#include <event2/event.h>
+#include <event2/listener.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <amqp.h>
-#include <amqp_framing.h>
-#include <amqp_tcp_socket.h>
-#include <event.h>
 #include "amqp.h"
 
-#define AMQP_HOST "localhost" // TODO
 #define AMQP_PORT 5672
-#define AMQP_QUEUE "forest_queue"
 
-static amqp_connection_state_t amqp_conn;
-static amqp_socket_t *amqp_socket;
+struct event_base *ev_base;
+struct evconnlistener *amqp_listener;
 
-void setup_ampq_connection()
+void amqp_accept_callback(struct evconnlistener *listener, evutil_socket_t fd,
+    struct sockaddr *addr, int socklen, void *ctx)
 {
-    amqp_conn = amqp_new_connection();
-    amqp_socket = amqp_tcp_socket_new(amqp_conn);
-    if (!amqp_socket)
-    {
-        fprintf(stderr, "Failed to create AMPQ socket\n");
-        return;
-    }
-    if (amqp_socket_open(amqp_socket, AMQP_HOST, AMQP_PORT))
-    {
-        fprintf(stderr, "Failed to create AMQP socket\n");
-        return;
-    }
-    amqp_login(
-        amqp_conn,
-        "/",
-        0,
-        131072,
-        0,
-        AMQP_SASL_METHOD_PLAIN,
-        "guest",
-        "guest");
-    amqp_channel_open(amqp_conn, 1);
-    amqp_queue_declare(
-        amqp_conn,
-        1,
-        amqp_cstring_bytes(AMQP_QUEUE),
-        0,0,0,0,
-        amqp_empty_table);
+    printf("[AMQP] New client connected\n");
+    // TODO Create an AMPQ conn object & manage session state
 }
 
+void setup_amqp_listener(int port)
+{
+    struct sockaddr_in sin;
+    memset(&sin, 0, sizeof(sin));
+    sin.sin_family = AF_INET;
+    sin.sin_addr.s_addr = htonl(INADDR_ANY);
+    sin.sin_port = htonl(INADDR_ANY);
+    sin.sin_port = htons(port);
+
+    ev_base = event_base_new();
+    if (!ev_base)
+    {
+        fprintf(stderr, "Error: Could not create event base\n");
+        exit(1);
+    }
+
+    amqp_listener = evconnlistener_new_bind(
+        ev_base, amqp_accept_callback, NULL,
+        LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE, -1,
+        (struct sockaddr*)&sin, sizeof(sin)
+    );
+
+    if (!amqp_listener)
+    {
+        fprintf(stderr, "Error: Could not create AMQP listener\n");
+        exit(1);
+    }
+
+    printf("[AMQP] Listening for AMQP connections on port %d...\n", port);
+    event_base_dispatch(ev_base);
+}
