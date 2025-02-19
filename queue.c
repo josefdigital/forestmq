@@ -59,25 +59,24 @@ FMQ_Queue *FMQ_Queue_new(const u_int16_t msg_size, const int8_t log_level)
 
 void FMQ_Queue_enqueue(FMQ_Queue *queue, void *data)
 {
-    FMQ_QNode *tmpHeadNode = queue->head;
     FMQ_QNode *node = FMQ_QNode_new(data);
     queue->size += 1;
+
     if (queue->head == NULL)
     {
         queue->head = node;
         queue->tail = node;
-        return;
+    }
+    else
+    {
+        queue->tail->next = node;
+        queue->tail = node;
     }
 
-    while (tmpHeadNode->next != NULL)
-    {
-        tmpHeadNode = tmpHeadNode->next;
-    }
-    tmpHeadNode->next = node;
-    queue->tail = node;
     FMQ_LOGGER(queue->log_level, "{queue}: Queue successfully updated\n"
         "{queue}: Queue size: %d\n", queue->size);
 }
+
 
 FMQ_QNode *FMQ_Queue_dequeue(FMQ_Queue *queue)
 {
