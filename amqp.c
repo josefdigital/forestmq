@@ -2,7 +2,6 @@
 // Created by Joe (Personal) on 10/02/2025.
 //
 
-
 #include <amqp.h>
 #include <amqp_framing.h>
 #include <amqp_tcp_socket.h>
@@ -12,48 +11,42 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "amqp.h"
 
-#define AMQP_PORT 5672
+#include <jansson.h>
+#include <event2/buffer.h>
+#include <event2/http.h>
+#include "config.h"
+#include "queue.h"
 
-struct event_base *ev_base;
-struct evconnlistener *amqp_listener;
+#define FMQ_AMQP_PORT 5672
 
-void amqp_accept_callback(struct evconnlistener *listener, evutil_socket_t fd,
-    struct sockaddr *addr, int socklen, void *ctx)
-{
-    printf("[AMQP] New client connected\n");
-    // TODO Create an AMPQ conn object & manage session state
-}
+static struct evconnlistener *listener = NULL;
 
-void setup_amqp_listener(int port)
+
+void start_amqp_listener(struct event_base *base, FMQ_Queue *queue)
 {
     struct sockaddr_in sin;
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = htonl(INADDR_ANY);
-    sin.sin_port = htonl(INADDR_ANY);
-    sin.sin_port = htons(port);
+    sin.sin_addr.s_addr = htonl(INADDR_ANY); // 0.0.0.0
+    sin.sin_port = htons(FMQ_AMQP_PORT);
 
-    ev_base = event_base_new();
-    if (!ev_base)
-    {
-        fprintf(stderr, "Error: Could not create event base\n");
-        exit(1);
-    }
-
-    amqp_listener = evconnlistener_new_bind(
-        ev_base, amqp_accept_callback, NULL,
-        LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE, -1,
-        (struct sockaddr*)&sin, sizeof(sin)
+    listener = evconnlistener_new_bind(
+        base,
+        NULL, // TODO callback
+        NULL, // TODO context
+       LEV_OPT_REUSEABLE | LEV_OPT_CLOSE_ON_FREE,
+       -1,
+       (struct sockaddr *)&sin,
+       sizeof(sin)
     );
 
-    if (!amqp_listener)
+    if (!listener)
     {
-        fprintf(stderr, "Error: Could not create AMQP listener\n");
+        perror("[AMPQ] Failed to bind to port 5672");
         exit(1);
     }
-
-    printf("[AMQP] Listening for AMQP connections on port %d...\n", port);
-    event_base_dispatch(ev_base);
+    FMQ_LOGGER(queue->log_level, "[FORESTMQ] Listening for AMQP connections on port %d\n", FMQ_AMQP_PORT);
 }

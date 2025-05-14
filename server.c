@@ -13,6 +13,7 @@
 #include "utils.h"
 #include "tcp.h"
 #include "server.h"
+#include "amqp.h"
 
 
 static char* get_req_method(enum evhttp_cmd_type cmd)
@@ -82,7 +83,6 @@ static void resp_callback(struct evhttp_request *req, void *server)
             evbuffer_add_printf(reply, "NULL"); // TODO 404
         }
 
-
         struct evkeyvalq *headers = evhttp_request_get_output_headers(req);
         evhttp_add_header(headers, "Content-Type", "application/json");
         evhttp_send_reply(req, HTTP_OK, NULL, reply);
@@ -108,6 +108,10 @@ static int start_server(FMQ_Server *s)
     ev_uint16_t http_port = (ev_uint16_t)s->port;
 
     struct event_base *base = event_base_new();
+
+    // Start AMPQ listener on port 5672 using the same event base
+    start_amqp_listener(base, s->queue);
+
     struct evhttp *http_server = evhttp_new(base);
 
     int http_handle = evhttp_bind_socket(http_server, (const char *) http_addr, http_port);
