@@ -68,7 +68,6 @@ static void resp_callback(struct evhttp_request *req, void *server)
         if (strcmp(method, "POST") == 0 && strcmp(request_uri, "/provider") == 0)
         {
             provider_callback(req, reply, s->queue);
-
         }
         else if (strcmp(method, "POST") == 0 && strcmp(request_uri, "/consumer") == 0)
         {

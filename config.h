@@ -16,6 +16,7 @@
   if (level > 0) \
   { \
     printf("[FORESTMQ]: " __VA_ARGS__);  \
+    fflush(stdout); \
   } \
 }\
 
