@@ -109,8 +109,8 @@ static int start_server(FMQ_Server *s)
 
     struct event_base *base = event_base_new();
 
-    // Start AMPQ listener on port 5672 using the same event base
-    start_amqp_listener(base, s->queue);
+    // TODO Start AMPQ listener on port 5672 using the same event base
+    // start_amqp_listener(base, s->queue); TODO
 
     struct evhttp *http_server = evhttp_new(base);
 
