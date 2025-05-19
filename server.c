@@ -124,7 +124,7 @@ static int start_server(FMQ_Server *s)
     struct event *sig_int = evsignal_new(base, SIGINT, my_signal_event_cb, base);
     event_add(sig_int, NULL);
 
-    FMQ_LOGGER(s->log_level, "Listening request on http://%s:%d (%d)\n", http_addr, http_port, http_handle);
+    FMQ_LOGGER(s->log_level, "Listening on http://%s:%d (%d)\n", http_addr, http_port, http_handle);
     event_base_dispatch(base);
 
     evhttp_free(http_server);
