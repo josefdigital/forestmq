@@ -25,7 +25,7 @@ Message Queue built on [libevent](https://libevent.org/)
 ### Quick Start
 #### Run with Docker
 ```
-docker run -p 8005:8005 bandnoticeboard/forestmq:0.6.0
+docker run -p 8005:8005 josefdigital/forestmq:0.6.2
 ```
 
 Forest MQ is still in very early stages of development, but
@@ -49,7 +49,7 @@ dequeue messages off the queue.
 |---------------|---------------------------------------------|---------------------|
 | `--msg-size`  | integer number of bytes e.g                 | `--msg-size 10000`  |
 | `--port`      | integer e.g                                 | `--port 3000`       |
-| `--log-level` | Default is `none` (No logging)              | `--log-level none`  |    
+| `--log-level` | Default is `debug` (With logging)           | `--log-level none`  |    
 |               | Debugging level logging (includes all logs) | `--log-level debug` |
 | `--daemon`    | Run ForestMQ in daemon mode                 | `--daemon`          |
 | `--hosts`     | Add a list of allowed hosts                 | `--hosts localhost,127.0.0.1` |

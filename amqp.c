@@ -54,7 +54,7 @@ static void amqp_read_callback(struct bufferevent *bev, void *ctx)
     // Check that the header matches the AMQP protocol of 8 bytes
     if (len < 8)
     {
-        FMQ_LOGGER(queue->log_level, "AMQP incoming header less that 8 bytes")
+        FMQ_LOGGER(queue->log_level, "AMQP incoming header less that 8 bytes");
         return;
     }
 
