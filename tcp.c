@@ -74,9 +74,11 @@ void consumer_callback(struct evhttp_request *req, struct evbuffer *reply, void 
 void provider_callback(struct evhttp_request *req, struct evbuffer *reply, void *queue)
 {
     FMQ_Queue *q = (FMQ_Queue*)queue;
-    char body_data[q->msg_size]; // buffer
+    char body_data[q->msg_size]; // stack buffer
+    memset(body_data, 0, sizeof(body_data));
+
     get_request_body(body_data, req, q);
-    // turn the request body's data into a jansson JSON object
+
     json_error_t error;
     json_t *json_req_object = json_loads(body_data, JSON_INDENT(0), &error);
     if (strlen(error.text) > 0)
