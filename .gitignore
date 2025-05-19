@@ -59,3 +59,28 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Python
+examples/python/**/*.py[cod]
+examples/python/**/__pycache__/
+
+# Ignore virtual environments inside examples/python/
+examples/python/**/venv/
+examples/python/**/.venv/
+
+# Ignore test/coverage artifacts in examples/python/
+examples/python/**/.pytest_cache/
+examples/python/**/.coverage
+examples/python/**/coverage.xml
+examples/python/**/htmlcov/
+examples/python/**/.mypy_cache/
+examples/python/**/.pyright/
+examples/python/**/ruff_cache/
+
+# Ignore Jupyter checkpoints in examples/python/
+examples/python/**/.ipynb_checkpoints/
+
+# Ignore editor/project files inside examples/python/
+examples/python/**/.DS_Store
+examples/python/**/.vscode/
+examples/python/**/.idea/

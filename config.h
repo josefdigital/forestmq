@@ -15,7 +15,7 @@
 { \
   if (level > 0) \
   { \
-    printf(__VA_ARGS__);  \
+    printf("[FORESTMQ]: " __VA_ARGS__);  \
   } \
 }\
 
