@@ -4,7 +4,7 @@ Message Queue built on [libevent](https://libevent.org/)
 ⚠️ Production ready in v1.0.0
 
 ### Project Status
-🎉 Forest MQ is now usable for test / hobby projects or the curious.
+🎉 ForestMQ is now usable for test / hobby projects or the curious.
 
 ### Features
 - TCP ✅
